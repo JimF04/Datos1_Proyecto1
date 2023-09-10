@@ -150,4 +150,5 @@ class Ventana3 extends JFrame {
         add(milaminainfo);
         setVisible(true);
     }
-}
+}   
+//Hola
