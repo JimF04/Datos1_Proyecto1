@@ -112,6 +112,23 @@ class Ventana2 extends JFrame {
             }
         });
         milaminagame.add(returnbtn);
+
+
+
+        JButton gamebtn = new JButton();
+        gamebtn.setBounds(470, 200, 150 , 30);
+        gamebtn.setText("GAME");
+        gamebtn.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                new Ventanagame();
+                dispose();
+            }
+
+        });
+        
+
+        milaminagame.add(gamebtn);
+
         setVisible(true);
     }
 }
@@ -150,5 +167,83 @@ class Ventana3 extends JFrame {
         add(milaminainfo);
         setVisible(true);
     }
-}   
-//Hola
+}
+
+class Ventanagame extends JFrame{
+
+    public Ventanagame(){
+        setLayout(null);
+        setSize(1200,675);
+        setTitle("CONNECT THE DOTS");
+        
+
+        PanelDePuntos panelDePuntos = new PanelDePuntos(10, 10);
+        panelDePuntos.setBounds(0, 0, 1200, 675);
+
+
+        add(panelDePuntos);
+
+        setVisible(true);
+
+    }
+
+}
+
+class PanelDePuntos extends JPanel{
+    private Punto[][] matriz;
+
+    public PanelDePuntos(int filas, int columnas){
+        this.matriz = new Punto[filas][columnas];
+
+        for (int i = 0; i<filas;i++){
+            for (int j = 0; j<columnas; j++){
+                matriz[i][j] = new Punto(i*40,j*40);
+            }
+        }
+    }
+
+    protected void paintComponent(Graphics g){
+        super.paintComponent(g);
+
+        for (int i = 0; i<matriz.length;i++){
+            for(int j=0; j<matriz.length;j++){
+                g.drawOval(matriz[i][j].getX(), matriz[i][j].getY(), 5, 5);
+            }
+        }
+    }
+
+
+}
+
+ class Punto {
+    private int x;
+    private int y;
+
+    public Punto(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    // Getters y setters
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    @Override
+    public String toString() {
+        return "(" + x + ", " + y + ")";
+    }
+}
+
