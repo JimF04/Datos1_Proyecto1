@@ -173,7 +173,7 @@ class Ventanagame extends JFrame{
 
     public Ventanagame(){
         setLayout(null);
-        setSize(1200,675);
+        setSize(1000,675);
         setTitle("CONNECT THE DOTS");
         
 
@@ -191,13 +191,20 @@ class Ventanagame extends JFrame{
 
 class PanelDePuntos extends JPanel{
     private Punto[][] matriz;
+    private boolean[][] lineashorizontales;
+    private boolean[][] lineasverticales;
+    private int [][] cajas;
+    
 
     public PanelDePuntos(int filas, int columnas){
         this.matriz = new Punto[filas][columnas];
+        this.lineashorizontales = new boolean[filas -1][columnas];
+        this.lineasverticales = new boolean[filas][columnas -1];
+        this.cajas = new int [filas-1][columnas-1];
 
         for (int i = 0; i<filas;i++){
             for (int j = 0; j<columnas; j++){
-                matriz[i][j] = new Punto(i*40,j*40);
+                matriz[i][j] = new Punto(i*100,j*100);
             }
         }
     }
@@ -208,6 +215,12 @@ class PanelDePuntos extends JPanel{
         for (int i = 0; i<matriz.length;i++){
             for(int j=0; j<matriz.length;j++){
                 g.drawOval(matriz[i][j].getX(), matriz[i][j].getY(), 5, 5);
+
+                if(j<matriz.length-1 && lineashorizontales[i][j]){
+                    g.drawLine(matriz[i][j].getX(),matriz[i][j].getY(),matriz[i][j+1].getX(),matriz[i][j+1].getY());
+
+
+                }
             }
         }
     }
