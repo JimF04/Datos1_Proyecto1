@@ -3,10 +3,15 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import javax.swing.*;
 import javax.imageio.ImageIO;
 import java.io.IOException;
+import java.net.*;
+import java.io.*;
+import java.awt.event.MouseAdapter;
+
 
 public class Interfaz {
 
@@ -57,7 +62,6 @@ public class Interfaz {
             }
         });
         milamina.add(playbtn);
-
         JButton infobtn = new JButton();
         infobtn.setBounds(525, 200, 150, 50);
         infobtn.setText("INFO");
@@ -191,36 +195,54 @@ class Ventanagame extends JFrame{
 
 class PanelDePuntos extends JPanel{
     private Punto[][] matriz;
-    private boolean[][] lineashorizontales;
-    private boolean[][] lineasverticales;
-    private int [][] cajas;
-    
 
     public PanelDePuntos(int filas, int columnas){
         this.matriz = new Punto[filas][columnas];
-        this.lineashorizontales = new boolean[filas -1][columnas];
-        this.lineasverticales = new boolean[filas][columnas -1];
-        this.cajas = new int [filas-1][columnas-1];
 
         for (int i = 0; i<filas;i++){
             for (int j = 0; j<columnas; j++){
                 matriz[i][j] = new Punto(i*100,j*100);
             }
         }
+
+        addMouseListener(new MouseAdapter(){
+            public void mouseClicked(MouseEvent e){
+                int x= e.getX();
+                int y= e.getY();
+                Punto puntoseleccionado = getPuntoCercano(x,y);
+                if (puntoseleccionado !=null){
+                    System.out.println("Hola mundo");
+                }
+            }
+
+        });
     }
+    private Punto getPuntoCercano(int x,int y){
+        Punto puntoCercano = null;
+        double distanciaMinima = Double.MAX_VALUE;
+        for(Punto[] fila : matriz){
+            for (Punto punto : fila){
+                double distancia = Math.sqrt(Math.pow(punto.getX() - x, 2) + Math.pow(punto.getY() - y,2));
+                if (distancia<20){
+                    if(distancia<distanciaMinima){
+                        distanciaMinima=distancia;
+                        puntoCercano = punto;
+                    
+                    }
+                }
+            }
+        }
+        return puntoCercano;
+    }
+
+
 
     protected void paintComponent(Graphics g){
         super.paintComponent(g);
 
         for (int i = 0; i<matriz.length;i++){
-            for(int j=0; j<matriz.length;j++){
+            for(int j=0; j<matriz[i].length;j++){
                 g.drawOval(matriz[i][j].getX(), matriz[i][j].getY(), 5, 5);
-
-                if(j<matriz.length-1 && lineashorizontales[i][j]){
-                    g.drawLine(matriz[i][j].getX(),matriz[i][j].getY(),matriz[i][j+1].getX(),matriz[i][j+1].getY());
-
-
-                }
             }
         }
     }
