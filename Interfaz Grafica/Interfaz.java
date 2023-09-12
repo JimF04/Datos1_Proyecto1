@@ -8,9 +8,9 @@ import java.awt.image.BufferedImage;
 import javax.swing.*;
 import javax.imageio.ImageIO;
 import java.io.IOException;
-import java.net.*;
-import java.io.*;
 import java.awt.event.MouseAdapter;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class Interfaz {
@@ -195,6 +195,7 @@ class Ventanagame extends JFrame{
 
 class PanelDePuntos extends JPanel{
     private Punto[][] matriz;
+    private List<Punto> puntosSeleccionados = new ArrayList<>();
 
     public PanelDePuntos(int filas, int columnas){
         this.matriz = new Punto[filas][columnas];
@@ -211,8 +212,19 @@ class PanelDePuntos extends JPanel{
                 int y= e.getY();
                 Punto puntoseleccionado = getPuntoCercano(x,y);
                 if (puntoseleccionado !=null){
-                    System.out.println("Hola mundo");
+                    puntosSeleccionados.add(puntoseleccionado);
+                        if (puntosSeleccionados.size()==2){
+                            System.out.println("Hola mundo");
+                            repaint();
+
+                            
+                        }
+                    
+                    
+                    
                 }
+
+                
             }
 
         });
@@ -244,6 +256,14 @@ class PanelDePuntos extends JPanel{
             for(int j=0; j<matriz[i].length;j++){
                 g.drawOval(matriz[i][j].getX(), matriz[i][j].getY(), 5, 5);
             }
+        }
+         synchronized(puntosSeleccionados) {
+        if (puntosSeleccionados.size() == 2) {
+            Punto p1 = puntosSeleccionados.get(0);
+            Punto p2 = puntosSeleccionados.get(1);
+            g.drawLine(p1.getX() + 2, p1.getY() +2 , p2.getX() + 2, p2.getY() + 2);
+            puntosSeleccionados.clear();
+        }
         }
     }
 
