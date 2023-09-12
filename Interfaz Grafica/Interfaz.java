@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.net.*;
 import java.io.*;
 import java.awt.event.MouseAdapter;
+import com.fazecast.jSerialComm.SerialPort;
+import java.io.OutputStream;
 
 
 public class Interfaz {
