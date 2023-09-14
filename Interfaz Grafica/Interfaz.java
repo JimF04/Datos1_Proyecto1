@@ -194,16 +194,17 @@ class Ventanagame extends JFrame{
 }
 
 class PanelDePuntos extends JPanel{
-    private Punto[][] matriz;
+    private ListaEnlazada<Punto> puntosTotales = new ListaEnlazada<>();
     private List<Punto> puntosSeleccionados = new ArrayList<>();
     private List<Linea> lineasDibujadas = new ArrayList<>();
 
     public PanelDePuntos(int filas, int columnas){
-        this.matriz = new Punto[filas][columnas];
+
 
         for (int i = 0; i<filas;i++){
             for (int j = 0; j<columnas; j++){
-                matriz[i][j] = new Punto(i*100,j*100);
+                Punto punto = new Punto(i*100,j*100,i,j);
+                puntosTotales.add(punto);
             }
         }
 
@@ -212,12 +213,21 @@ class PanelDePuntos extends JPanel{
                 int x= e.getX();
                 int y= e.getY();
                 Punto puntoseleccionado = getPuntoCercano(x,y);
-                if (puntoseleccionado !=null){
+                 if (puntoseleccionado !=null){
                     puntosSeleccionados.add(puntoseleccionado);
                         if (puntosSeleccionados.size()==2){
-                            System.out.println("Hola mundo");
-                            lineasDibujadas.add(new Linea(puntosSeleccionados.get(0), puntosSeleccionados.get(1)));
-                            repaint();
+                            Punto p1 = puntosSeleccionados.get(0);
+                            Punto p2 = puntosSeleccionados.get(1);
+
+                            if ((p1.getX() == p2.getX() || p1.getY() == p2.getY()) && (calcularDistancia(p1, p2) == 100)==true ){
+                                lineasDibujadas.add(new Linea(p1, p2));
+                        repaint();
+                            } else{
+                                System.out.println("Solo se pueden hacer lineas verticales, horizontales y con un espacio de 100 entre punto");
+                            }
+                            puntosSeleccionados.clear();
+                            
+                        
 
                             
                         }
@@ -231,39 +241,38 @@ class PanelDePuntos extends JPanel{
 
         });
     }
+
+    private double calcularDistancia(Punto p1, Punto p2){
+        return Math.sqrt(Math.pow(p2.getX() - p1.getX(), 2) + Math.pow(p2.getY() - p1.getY(), 2));
+    }
+
     private Punto getPuntoCercano(int x,int y){
         Punto puntoCercano = null;
         double distanciaMinima = Double.MAX_VALUE;
-        for(Punto[] fila : matriz){
-            for (Punto punto : fila){
+        for(Punto punto : puntosTotales.getAll()){
                 double distancia = Math.sqrt(Math.pow(punto.getX() - x, 2) + Math.pow(punto.getY() - y,2));
-                if (distancia<20){
-                    if(distancia<distanciaMinima){
+                if (distancia<20 && distancia<distanciaMinima){
                         distanciaMinima=distancia;
                         puntoCercano = punto;
                     
                     }
-                }
+                
             }
+            return puntoCercano;
         }
-        return puntoCercano;
-    }
+        
+
 
 
 
     protected void paintComponent(Graphics g){
         super.paintComponent(g);
 
-        for (int i = 0; i<matriz.length;i++){
-            for(int j=0; j<matriz[i].length;j++){
-                g.drawOval(matriz[i][j].getX(), matriz[i][j].getY(), 5, 5);
-            }
-        }
+        for (Punto punto : puntosTotales.getAll()) {
+        g.drawOval(punto.getX(), punto.getY(), 5, 5);
+    }
          synchronized(puntosSeleccionados) {
         if (puntosSeleccionados.size() == 2) {
-            // Punto p1 = puntosSeleccionados.get(0);
-            // Punto p2 = puntosSeleccionados.get(1);
-            // g.drawLine(p1.getX() + 2, p1.getY() +2 , p2.getX() + 2, p2.getY() + 2);
             puntosSeleccionados.clear();
         }
         }
@@ -281,7 +290,7 @@ class PanelDePuntos extends JPanel{
     private int x;
     private int y;
 
-    public Punto(int x, int y) {
+    public Punto(int x, int y,int fila, int columna) {
         this.x = x;
         this.y = y;
     }
@@ -328,3 +337,77 @@ class Linea {
 }
 
 
+class Nodo<T> {
+    T data;
+    Nodo<T> next;
+
+    public Nodo(T data) {
+        this.data = data;
+        this.next = null;
+    }
+}
+
+class ListaEnlazada<T> {
+    private Nodo<T> head;
+
+    public ListaEnlazada() {
+        this.head = null;
+    }
+
+    // Agregar un nuevo nodo al final
+    public void add(T data) {
+        Nodo<T> newNode = new Nodo<>(data);
+        if (head == null) {
+            head = newNode;
+            return;
+        }
+
+        Nodo<T> current = head;
+        while (current.next != null) {
+            current = current.next;
+        }
+        current.next = newNode;
+    }
+
+    // Eliminar un nodo (por el dato)
+    public void remove(T data) {
+        if (head == null) return;
+
+        if (head.data.equals(data)) {
+            head = head.next;
+            return;
+        }
+
+        Nodo<T> current = head;
+        while (current.next != null && !current.next.data.equals(data)) {
+            current = current.next;
+        }
+
+        if (current.next != null) {
+            current.next = current.next.next;
+        }
+    }
+
+    // Buscar un nodo por el dato y devolverlo
+    public Nodo<T> search(T data) {
+        Nodo<T> current = head;
+        while (current != null) {
+            if (current.data.equals(data)) {
+                return current;
+            }
+            current = current.next;
+        }
+        return null;
+    }
+
+    // Obtener todos los datos como una lista para facilitar el manejo
+    public List<T> getAll() {
+        List<T> list = new ArrayList<>();
+        Nodo<T> current = head;
+        while (current != null) {
+            list.add(current.data);
+            current = current.next;
+        }
+        return list;
+    }
+}
