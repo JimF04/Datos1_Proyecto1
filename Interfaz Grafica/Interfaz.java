@@ -8,11 +8,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.*;
 import javax.imageio.ImageIO;
 import java.io.IOException;
-import java.net.*;
-import java.io.*;
 import java.awt.event.MouseAdapter;
-import com.fazecast.jSerialComm.SerialPort;
-import java.io.OutputStream;
 
 
 public class Interfaz {
@@ -197,6 +193,8 @@ class Ventanagame extends JFrame{
 
 class PanelDePuntos extends JPanel{
     private Punto[][] matriz;
+    private List<Punto> puntosSeleccionados = new ArrayList<>();
+    private List<Linea> lineasDibujadas = new ArrayList<>();
 
     public PanelDePuntos(int filas, int columnas){
         this.matriz = new Punto[filas][columnas];
@@ -213,8 +211,20 @@ class PanelDePuntos extends JPanel{
                 int y= e.getY();
                 Punto puntoseleccionado = getPuntoCercano(x,y);
                 if (puntoseleccionado !=null){
-                    System.out.println("Hola mundo");
+                    puntosSeleccionados.add(puntoseleccionado);
+                        if (puntosSeleccionados.size()==2){
+                            System.out.println("Hola mundo");
+                            lineasDibujadas.add(new Linea(puntosSeleccionados.get(0), puntosSeleccionados.get(1)));
+                            repaint();
+
+                            
+                        }
+                    
+                    
+                    
                 }
+
+                
             }
 
         });
@@ -247,6 +257,19 @@ class PanelDePuntos extends JPanel{
                 g.drawOval(matriz[i][j].getX(), matriz[i][j].getY(), 5, 5);
             }
         }
+         synchronized(puntosSeleccionados) {
+        if (puntosSeleccionados.size() == 2) {
+            // Punto p1 = puntosSeleccionados.get(0);
+            // Punto p2 = puntosSeleccionados.get(1);
+            // g.drawLine(p1.getX() + 2, p1.getY() +2 , p2.getX() + 2, p2.getY() + 2);
+            puntosSeleccionados.clear();
+        }
+        }
+        for(Linea linea : lineasDibujadas) {
+        Punto p1 = linea.getPunto1();
+        Punto p2 = linea.getPunto2();
+        g.drawLine(p1.getX() + 2, p1.getY() +2 , p2.getX() + 2, p2.getY() + 2);
+    }
     }
 
 
@@ -283,4 +306,23 @@ class PanelDePuntos extends JPanel{
         return "(" + x + ", " + y + ")";
     }
 }
+
+class Linea {
+    private Punto punto1;
+    private Punto punto2;
+
+    public Linea(Punto punto1, Punto punto2) {
+        this.punto1 = punto1;
+        this.punto2 = punto2;
+    }
+
+    public Punto getPunto1() {
+        return punto1;
+    }
+
+    public Punto getPunto2() {
+        return punto2;
+    }
+}
+
 
