@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 // Pines de los botones
 const int buttonAPin = 2;
 const int buttonBPin = 3;
@@ -43,36 +45,30 @@ void loop() {
     int joystickYValue = analogRead(joystickYPin);
     bool joystickButton = !digitalRead(joystickButtonPin);
     
-    // Imprimir en Serial Monitor los valores leidos
-    Serial.print("Joystick X: ");
-    Serial.print(joystickXValue);
-    Serial.print("  Y: ");
-    Serial.print(joystickYValue);
-    Serial.print("  Button: ");
-    Serial.println(joystickButton);
-
-    // Imprimir si se han oprimido los botones
-    if (buttonA) {
-        Serial.println("Botón A oprimido");
+    // Acciones de los botones
+    if (digitalRead(buttonAPin) == LOW){
+      Serial.write('A');
+      delay(500);
     }
-    if (buttonB) {
-        Serial.println("Botón B oprimido");
+    if (digitalRead(buttonBPin) == LOW){
+      Serial.write('B');
+      delay(500);
     }
-    if (buttonC) {
-        Serial.println("Botón C oprimido");
+    if (digitalRead(buttonCPin) == LOW){
+      Serial.write('C');
+      delay(500);
     }
-    if (buttonD) {
-        Serial.println("Botón D oprimido");
+    if (digitalRead(buttonDPin) == LOW){
+      Serial.write('D');
+      delay(500);
     }
-    if (buttonE) {
-        Serial.println("Botón E oprimido");
+    if (digitalRead(buttonEPin) == LOW){
+      Serial.write('E');
+      delay(500);
     }
-    if (buttonF) {
-        Serial.println("Botón F oprimido");
+    if (digitalRead(buttonFPin) == LOW){
+      Serial.write('F');
+      delay(500);
     }
 
-    // Acciónes de los botones
-    if (buttonA) {
-        // Acción para el botón A
-    }
 }
