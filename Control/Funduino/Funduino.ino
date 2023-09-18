@@ -1,5 +1,3 @@
-#include <Arduino.h>
-
 // Pines de los botones
 const int buttonAPin = 2;
 const int buttonBPin = 3;
@@ -14,6 +12,8 @@ const int joystickYPin = A1;
 const int joystickButtonPin = 8;
 
 void setup() {
+    // Inicialización de comunicación serial
+    Serial.begin(9600);
     // Configurar pines de los botones
     pinMode(buttonAPin, INPUT_PULLUP);
     pinMode(buttonBPin, INPUT_PULLUP);
@@ -26,9 +26,6 @@ void setup() {
     pinMode(joystickXPin, INPUT);
     pinMode(joystickYPin, INPUT);
     pinMode(joystickButtonPin, INPUT_PULLUP);
-
-    // Inicialización de comunicación serial
-    Serial.begin(9600);
 }
 
 void loop() {
@@ -46,29 +43,56 @@ void loop() {
     bool joystickButton = !digitalRead(joystickButtonPin);
     
     // Acciones de los botones
-    if (digitalRead(buttonAPin) == LOW){
+    if (buttonA){
       Serial.write('A');
-      delay(500);
+      Serial.write('\n');
+      delay(200);
     }
-    if (digitalRead(buttonBPin) == LOW){
+    if (buttonB){
       Serial.write('B');
-      delay(500);
+      Serial.write('\n');
+      delay(200);
     }
-    if (digitalRead(buttonCPin) == LOW){
+    if (buttonC){
       Serial.write('C');
-      delay(500);
+      Serial.write('\n');
+      delay(200);
     }
-    if (digitalRead(buttonDPin) == LOW){
+    if (buttonD){
       Serial.write('D');
-      delay(500);
+      Serial.write('\n');
+      delay(200);
     }
-    if (digitalRead(buttonEPin) == LOW){
+    if (buttonE){
       Serial.write('E');
-      delay(500);
+      Serial.write('\n');
+      delay(200);
     }
-    if (digitalRead(buttonFPin) == LOW){
+    if (buttonF){
       Serial.write('F');
-      delay(500);
+      Serial.write('\n');
+      delay(200);
     }
 
+    // Acciones del Joystick
+    if (joystickYValue < 400){
+      Serial.write('K');
+      Serial.write('\n');
+      delay(200);
+    } 
+    else if (joystickYValue > 600){
+      Serial.write('I');
+      Serial.write('\n');
+      delay(200);
+    }
+    if (joystickXValue < 400){
+      Serial.write('J');
+      Serial.write('\n');
+      delay(200);
+    }
+    else if (joystickXValue > 600){
+      Serial.write('L');
+      Serial.write('\n');
+      delay(200);
+    }
 }

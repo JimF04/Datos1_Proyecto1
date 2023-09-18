@@ -13,10 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import com.fazecast.jSerialComm.SerialPort;
-import com.fazecast.jSerialComm.SerialPortDataListener;
-import com.fazecast.jSerialComm.SerialPortEvent;
-
 
 public class Interfaz {
 
@@ -78,18 +74,18 @@ public class Interfaz {
         });
         milamina.add(infobtn);
 
-        milamina.addKeyListener(new KeyAdapter() {
+        frame.getContentPane().addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                // Verifica si la tecla presionada es la tecla que deseas para activar el botón
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                // Activa el botón programáticamente
+                // Verifica si la tecla presionada es la tecla 'A' (mayúscula o minúscula)
+                if (e.getKeyChar() == 'A') {
+                    // Activa el botón programáticamente
                     playbtn.doClick();
                 }
             }
-        });         
-        milamina.setFocusable(true);
-        milamina.requestFocusInWindow();
+        });
+        frame.getContentPane().setFocusable(true);
+        frame.getContentPane().requestFocus();
 
         frame.setVisible(true);
     }
