@@ -197,6 +197,32 @@ class PanelDePuntos extends JPanel{
     private ListaEnlazada<Punto> puntosTotales = new ListaEnlazada<>();
     private List<Punto> puntosSeleccionados = new ArrayList<>();
     private List<Linea> lineasDibujadas = new ArrayList<>();
+    private ListaEnlazada<List<Punto>> cuadradosCompletados = new ListaEnlazada<>();
+
+    private void verificarCuadrado(Linea nuevaLinea) {
+        for (Linea linea1 : lineasDibujadas) {
+            if (nuevaLinea.esAdyacente(linea1)) {
+                for (Linea linea2 : lineasDibujadas) {
+                    if (!linea2.equals(nuevaLinea) && !linea2.equals(linea1) && 
+                        (nuevaLinea.esAdyacente(linea2) || linea1.esAdyacente(linea2))) {
+                        for (Linea linea3 : lineasDibujadas) {
+                            if (!linea3.equals(nuevaLinea) && !linea3.equals(linea1) && !linea3.equals(linea2) &&
+                                linea3.esAdyacente(linea2) && linea3.esAdyacente(linea1)) {
+                                // ¡Tienes un cuadrado!
+                                List<Punto> cuadrado = new ArrayList<>();
+                                cuadrado.add(nuevaLinea.getPunto1());
+                                cuadrado.add(nuevaLinea.getPunto2());
+                                cuadrado.add(linea2.getPunto1());
+                                cuadrado.add(linea2.getPunto2());
+                                cuadradosCompletados.add(cuadrado);
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     public PanelDePuntos(int filas, int columnas){
 
@@ -207,6 +233,10 @@ class PanelDePuntos extends JPanel{
                 puntosTotales.add(punto);
             }
         }
+
+        
+
+    
 
         addMouseListener(new MouseAdapter(){
             public void mouseClicked(MouseEvent e){
@@ -220,7 +250,9 @@ class PanelDePuntos extends JPanel{
                             Punto p2 = puntosSeleccionados.get(1);
 
                             if ((p1.getX() == p2.getX() || p1.getY() == p2.getY()) && (calcularDistancia(p1, p2) == 100)==true ){
+                                Linea linea = new Linea(p1,p2);
                                 lineasDibujadas.add(new Linea(p1, p2));
+                                verificarCuadrado(linea);
                         repaint();
                             } else{
                                 System.out.println("Solo se pueden hacer lineas verticales, horizontales y con un espacio de 100 entre punto");
@@ -268,9 +300,24 @@ class PanelDePuntos extends JPanel{
     protected void paintComponent(Graphics g){
         super.paintComponent(g);
 
-        for (Punto punto : puntosTotales.getAll()) {
-        g.drawOval(punto.getX(), punto.getY(), 5, 5);
+        g.setColor(Color.WHITE);  // Color de los puntos
+    for (Punto punto : puntosTotales.getAll()) {
+        g.fillOval(punto.getX() - 5, punto.getY() - 5, 10, 10);  // Dibuja un círculo con radio 5 en cada punto
     }
+
+        for (List<Punto> cuadrado : cuadradosCompletados.getAll()) {     
+        Punto p1 = cuadrado.get(0);
+        Punto p2 = cuadrado.get(1);
+        Punto p3 = cuadrado.get(2);
+        Punto p4 = cuadrado.get(3);
+
+        int[] xPoints = {p1.getX(), p2.getX(), p4.getX(), p3.getX()};
+        int[] yPoints = {p1.getY(), p2.getY(), p4.getY(), p3.getY()};
+
+        g.setColor(Color.RED);
+        g.fillPolygon(xPoints, yPoints, 4);
+    }
+
          synchronized(puntosSeleccionados) {
         if (puntosSeleccionados.size() == 2) {
             puntosSeleccionados.clear();
@@ -334,6 +381,14 @@ class Linea {
     public Punto getPunto2() {
         return punto2;
     }
+
+    public boolean esAdyacente(Linea otra) {
+    if (this.punto1.equals(otra.punto1) || this.punto1.equals(otra.punto2) ||
+        this.punto2.equals(otra.punto1) || this.punto2.equals(otra.punto2)) {
+        return true;
+    }
+    return false;
+}
 }
 
 
