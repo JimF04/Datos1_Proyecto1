@@ -200,29 +200,61 @@ class PanelDePuntos extends JPanel{
     private ListaEnlazada<List<Punto>> cuadradosCompletados = new ListaEnlazada<>();
 
     private void verificarCuadrado(Linea nuevaLinea) {
-        for (Linea linea1 : lineasDibujadas) {
-            if (nuevaLinea.esAdyacente(linea1)) {
-                for (Linea linea2 : lineasDibujadas) {
-                    if (!linea2.equals(nuevaLinea) && !linea2.equals(linea1) && 
-                        (nuevaLinea.esAdyacente(linea2) || linea1.esAdyacente(linea2))) {
-                        for (Linea linea3 : lineasDibujadas) {
-                            if (!linea3.equals(nuevaLinea) && !linea3.equals(linea1) && !linea3.equals(linea2) &&
-                                linea3.esAdyacente(linea2) && linea3.esAdyacente(linea1)) {
-                                // ¡Tienes un cuadrado!
-                                List<Punto> cuadrado = new ArrayList<>();
-                                cuadrado.add(nuevaLinea.getPunto1());
-                                cuadrado.add(nuevaLinea.getPunto2());
-                                cuadrado.add(linea2.getPunto1());
-                                cuadrado.add(linea2.getPunto2());
-                                cuadradosCompletados.add(cuadrado);
-                                return;
-                            }
-                        }
+    List<Linea> adyacentes = obtenerAdyacentes(nuevaLinea);
+    for (Linea linea1 : adyacentes) {
+        for (Linea linea2 : adyacentes) {
+            for (Linea linea3 : adyacentes) {
+                if (formaCuadrado(nuevaLinea, linea1, linea2, linea3)) {
+                    ListaEnlazada<Punto> cuadrado = new ListaEnlazada<>();
+                    agregarSiNoExiste(cuadrado, nuevaLinea.getPunto1());
+                    agregarSiNoExiste(cuadrado, nuevaLinea.getPunto2());
+                    agregarSiNoExiste(cuadrado, linea1.getPunto1());
+                    agregarSiNoExiste(cuadrado, linea1.getPunto2());
+                    agregarSiNoExiste(cuadrado, linea2.getPunto1());
+                    agregarSiNoExiste(cuadrado, linea2.getPunto2());
+                    agregarSiNoExiste(cuadrado, linea3.getPunto1());
+                    agregarSiNoExiste(cuadrado, linea3.getPunto2());
+                    if(cuadrado.getAll().size() == 4) {
+                        cuadradosCompletados.add(cuadrado.getAll());
+                        return;
                     }
                 }
             }
         }
     }
+}
+
+private List<Linea> obtenerAdyacentes(Linea linea) {
+    List<Linea> adyacentes = new ArrayList<>();
+    for(Linea l : lineasDibujadas) {
+        if(l.esAdyacente(linea) && !l.equals(linea)) {
+            adyacentes.add(l);
+        }
+    }
+    return adyacentes;
+}
+        
+    private boolean formaCuadrado(Linea l1, Linea l2, Linea l3, Linea l4) {
+    ListaEnlazada<Punto> puntos = new ListaEnlazada<>();
+    agregarSiNoExiste(puntos, l1.getPunto1());
+    agregarSiNoExiste(puntos, l1.getPunto2());
+    agregarSiNoExiste(puntos, l2.getPunto1());
+    agregarSiNoExiste(puntos, l2.getPunto2());
+    agregarSiNoExiste(puntos, l3.getPunto1());
+    agregarSiNoExiste(puntos, l3.getPunto2());
+    agregarSiNoExiste(puntos, l4.getPunto1());
+    agregarSiNoExiste(puntos, l4.getPunto2());
+    return puntos.getAll().size() == 4;
+}
+
+private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
+    for (Punto p : lista.getAll()) {
+        if (p.getX() == punto.getX() && p.getY() == punto.getY()) {
+            return;
+        }
+    }
+    lista.add(punto);
+}
 
     public PanelDePuntos(int filas, int columnas){
 
@@ -248,16 +280,18 @@ class PanelDePuntos extends JPanel{
                         if (puntosSeleccionados.size()==2){
                             Punto p1 = puntosSeleccionados.get(0);
                             Punto p2 = puntosSeleccionados.get(1);
-
-                            if ((p1.getX() == p2.getX() || p1.getY() == p2.getY()) && (calcularDistancia(p1, p2) == 100)==true ){
+                            if(esLineaValida(p1,p2)){
                                 Linea linea = new Linea(p1,p2);
-                                lineasDibujadas.add(new Linea(p1, p2));
+                                lineasDibujadas.add(linea);
                                 verificarCuadrado(linea);
-                        repaint();
-                            } else{
+                            }else{
                                 System.out.println("Solo se pueden hacer lineas verticales, horizontales y con un espacio de 100 entre punto");
+
                             }
                             puntosSeleccionados.clear();
+                            repaint();
+                                
+                            
                             
                         
 
@@ -273,6 +307,13 @@ class PanelDePuntos extends JPanel{
 
         });
     }
+    private boolean esLineaValida(Punto p1, Punto p2) {
+    Linea posiblelinea = new Linea(p1,p2);
+    if(lineasDibujadas.contains(posiblelinea)){
+        return false;
+    }
+    return (p1.getX() == p2.getX() || p1.getY() == p2.getY()) && calcularDistancia(p1, p2) == 100;
+}
 
     private double calcularDistancia(Punto p1, Punto p2){
         return Math.sqrt(Math.pow(p2.getX() - p1.getX(), 2) + Math.pow(p2.getY() - p1.getY(), 2));
@@ -298,14 +339,19 @@ class PanelDePuntos extends JPanel{
 
 
     protected void paintComponent(Graphics g){
-        super.paintComponent(g);
+    super.paintComponent(g);
 
-        g.setColor(Color.WHITE);  // Color de los puntos
+    g.setColor(Color.BLACK);  // Color de los puntos
     for (Punto punto : puntosTotales.getAll()) {
-        g.fillOval(punto.getX() - 5, punto.getY() - 5, 10, 10);  // Dibuja un círculo con radio 5 en cada punto
+        g.fillOval(punto.getX() - 5, punto.getY() - 5, 9,9 );  // Dibuja un círculo con radio 5 en cada punto
     }
 
-        for (List<Punto> cuadrado : cuadradosCompletados.getAll()) {     
+    for (List<Punto> cuadrado : cuadradosCompletados.getAll()) {     
+        cuadrado.sort((p1, p2) -> {
+            if(p1.getX() != p2.getX()) return p1.getX() - p2.getX();
+            return p1.getY() - p2.getY();
+        });
+
         Punto p1 = cuadrado.get(0);
         Punto p2 = cuadrado.get(1);
         Punto p3 = cuadrado.get(2);
@@ -314,9 +360,23 @@ class PanelDePuntos extends JPanel{
         int[] xPoints = {p1.getX(), p2.getX(), p4.getX(), p3.getX()};
         int[] yPoints = {p1.getY(), p2.getY(), p4.getY(), p3.getY()};
 
-        g.setColor(Color.RED);
+        g.setColor(Color.BLACK);
         g.fillPolygon(xPoints, yPoints, 4);
     }
+
+    synchronized(puntosSeleccionados) {
+        if (puntosSeleccionados.size() == 2) {
+            puntosSeleccionados.clear();
+        }
+    }
+    for(Linea linea : lineasDibujadas) {
+        Punto p1 = linea.getPunto1();
+        Punto p2 = linea.getPunto2();
+        g.drawLine(p1.getX() + 2, p1.getY() +2 , p2.getX() + 2, p2.getY() + 2);
+        g.setColor(Color.BLACK);
+    }
+    
+
 
          synchronized(puntosSeleccionados) {
         if (puntosSeleccionados.size() == 2) {
@@ -327,6 +387,7 @@ class PanelDePuntos extends JPanel{
         Punto p1 = linea.getPunto1();
         Punto p2 = linea.getPunto2();
         g.drawLine(p1.getX() + 2, p1.getY() +2 , p2.getX() + 2, p2.getY() + 2);
+        g.setColor(Color.BLACK);
     }
     }
 
@@ -349,6 +410,13 @@ class PanelDePuntos extends JPanel{
 
     public void setX(int x) {
         this.x = x;
+    }
+
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Punto punto = (Punto) obj;
+        return x == punto.x && y == punto.y;
     }
 
     public int getY() {
@@ -383,12 +451,16 @@ class Linea {
     }
 
     public boolean esAdyacente(Linea otra) {
-    if (this.punto1.equals(otra.punto1) || this.punto1.equals(otra.punto2) ||
-        this.punto2.equals(otra.punto1) || this.punto2.equals(otra.punto2)) {
-        return true;
-    }
-    return false;
+        return this.punto1.equals(otra.punto1) || this.punto1.equals(otra.punto2) ||
+               this.punto2.equals(otra.punto1) || this.punto2.equals(otra.punto2);
 }
+public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Linea linea = (Linea) obj;
+        return (punto1.equals(linea.punto1) && punto2.equals(linea.punto2)) ||
+               (punto1.equals(linea.punto2) && punto2.equals(linea.punto1));
+    }
 }
 
 
