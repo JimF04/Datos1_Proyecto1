@@ -14,7 +14,7 @@ def serial_thread():
             if data == 'A':
                 pyautogui.press('A')
             elif data == 'B':
-                pyautogui.press('B')
+                pyautogui.click()
             elif data == 'C':
                 pyautogui.press('C')
             elif data == 'D':
@@ -24,13 +24,13 @@ def serial_thread():
             elif data == 'F':
                 pyautogui.press('F')
             elif data == 'I':
-                pyautogui.press('I')  # Arriba
+                pyautogui.move(0, -15)  # Arriba
             elif data == 'K':
-                pyautogui.press('K')  # Abajo
+                pyautogui.move(0, 15)  # Abajo
             elif data == 'J':
-                pyautogui.press('J')  # Izquierda
+                pyautogui.move(-15, 0)  # Izquierda
             elif data == 'L':
-                pyautogui.press('L')  # Derecha
+                pyautogui.move(15, 0)  # Derecha
 
         except KeyboardInterrupt:
             break

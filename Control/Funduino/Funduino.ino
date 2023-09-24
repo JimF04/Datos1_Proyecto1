@@ -78,21 +78,21 @@ void loop() {
     if (joystickYValue < 400){
       Serial.write('K');
       Serial.write('\n');
-      delay(200);
+      delay(100);
     } 
     else if (joystickYValue > 600){
       Serial.write('I');
       Serial.write('\n');
-      delay(200);
+      delay(100);
     }
     if (joystickXValue < 400){
       Serial.write('J');
       Serial.write('\n');
-      delay(200);
+      delay(100);
     }
     else if (joystickXValue > 600){
       Serial.write('L');
       Serial.write('\n');
-      delay(200);
+      delay(100);
     }
 }
