@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.awt.event.MouseAdapter;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.DataOutputStream;
+import java.net.Socket;
 
 
 public class Interfaz {
@@ -262,7 +264,7 @@ private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
     for (Punto p : lista.getAll()) {
         if (p.getX() == punto.getX() && p.getY() == punto.getY()) {
             return;
-        }
+        }   
     }
     lista.add(punto);
 }
@@ -291,6 +293,10 @@ private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
                         if (puntosSeleccionados.size()==2){
                             Punto p1 = puntosSeleccionados.get(0);
                             Punto p2 = puntosSeleccionados.get(1);
+
+
+                            String coordenadas = p1.toString() + "-" + p2.toString();
+                            enviarCoordenadasServidor(coordenadas);
                             if(esLineaValida(p1,p2)){
                                 Linea linea = new Linea(p1,p2);
                                 lineasDibujadas.add(linea);
@@ -389,6 +395,21 @@ private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
     }
     
 
+    }
+
+
+    private void enviarCoordenadasServidor(String coordenadas){
+        try{
+
+            Socket socketclient = new Socket("localhost", 9991); // Cambia "localhost" por la dirección IP del servidor si es necesario
+            DataOutputStream dos = new DataOutputStream(socketclient.getOutputStream());
+            dos.writeUTF(coordenadas);
+            dos.close();
+            socketclient.close();
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 
