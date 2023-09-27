@@ -6,19 +6,12 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.util.ArrayList;
 
 public class ServidorProject extends JFrame {
     private ServerSocket serverSocket;
     private boolean isRunning = false;
-    private int numClientesConectados = 0; // Variable para llevar un registro de la cantidad de clientes
     private JButton startButton;
     private JButton stopButton;
-    private JTextArea logTextArea; // Agregamos un JTextArea para mostrar información del servidor
 
     public ServidorProject() {
         super("Servidor");
@@ -55,19 +48,12 @@ public class ServidorProject extends JFrame {
             }
         });
 
-        // Configuramos el JTextArea
-        logTextArea = new JTextArea();
-        logTextArea.setEditable(false); // No permitimos editar el texto
-        JScrollPane scrollPane = new JScrollPane(logTextArea);
-
         JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout());
         panel.add(startButton);
         panel.add(stopButton);
 
-        // Agregamos el JTextArea al panel principal
-        add(panel, BorderLayout.NORTH);
-        add(scrollPane, BorderLayout.CENTER); // Agregamos el JTextArea con scroll al centro
+        add(panel);
 
         setVisible(true);
     }
@@ -75,21 +61,16 @@ public class ServidorProject extends JFrame {
     private void startServer() {
         if (!isRunning) {
             try {
-                int puerto = 8080; // Define el puerto aquí o en cualquier otro lugar
-                serverSocket = new ServerSocket(puerto);
+                serverSocket = new ServerSocket(8080);
                 isRunning = true;
                 startButton.setEnabled(false);
                 stopButton.setEnabled(true);
-
-                // Actualiza el JTextArea con información del servidor, incluida la cantidad de clientes
-                logTextArea.append("Servidor iniciado en el puerto " + puerto + "\n");
-                logTextArea.append("Clientes Conectados: " + numClientesConectados + "\n");
             } catch (IOException e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Error al iniciar el servidor.");
             }
         }
-    }    
+    }
 
     private void stopServer() {
         if (isRunning) {
@@ -98,10 +79,6 @@ public class ServidorProject extends JFrame {
                 isRunning = false;
                 startButton.setEnabled(true);
                 stopButton.setEnabled(false);
-
-                // Actualiza el JTextArea con información del servidor, incluida la cantidad de clientes
-                logTextArea.append("Servidor detenido\n");
-                logTextArea.append("Total de clientes conectados: " + numClientesConectados + "\n");
             } catch (IOException e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Error al detener el servidor.");
