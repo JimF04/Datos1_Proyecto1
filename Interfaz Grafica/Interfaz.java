@@ -140,40 +140,54 @@ class Ventana2 extends JFrame {
 }
 
 class Ventana3 extends JFrame {
-    public Ventana3(){
+    private BufferedImage backgroundImage;
+
+    public Ventana3() {
         setLayout(null);
         setTitle("Informacion");
         setSize(1200, 675);
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel milaminainfo = new JPanel();
-        milaminainfo.setLayout(null);
-        milaminainfo.setSize(1200,675);
-        milaminainfo.setBackground(Color.black);
+        try {
+            // Cargar la imagen de fondo
+            backgroundImage = ImageIO.read(getClass().getResource("instrucciones.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        JLabel infor = new JLabel();
-        infor.setText("<html>Este proyecto fue elaborado por:<br>Jimmy Feng Feng<br>Gabriel Fernandez Vargas<br>y Emanuel Rojas Fernandez</html>");
-        infor.setBounds(400,10,600,200);
-        infor.setFont(new Font("MV Boli",Font.PLAIN,30));
-        infor.setForeground(Color.white);
-        milaminainfo.add(infor);
+        JPanel milaminainfo = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                // Dibuja la imagen de fondo
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            }
+        };
+        milaminainfo.setLayout(null);
+        milaminainfo.setSize(1200, 675);
 
         JButton returnbtni = new JButton();
-        returnbtni.setBounds(20, 550, 100 , 30);
+        returnbtni.setBounds(20, 600, 100, 30);
         returnbtni.setText("RETURN");
-        returnbtni.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e){
-                new Interfaz();
-                dispose();
-            }
+        returnbtni.addActionListener(e -> {
+            new Interfaz();
+            dispose();
         });
         milaminainfo.add(returnbtni);
 
         add(milaminainfo);
+
         setVisible(true);
     }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new Ventana3();
+        });
+    }
 }
+
 
 class Ventanagame extends JFrame{
 
