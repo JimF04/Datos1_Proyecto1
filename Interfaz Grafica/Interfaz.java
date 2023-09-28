@@ -253,37 +253,37 @@ class PanelDePuntos extends JPanel{
 
 
 
-private List<Linea> obtenerAdyacentes(Linea linea) {
-    List<Linea> adyacentes = new ArrayList<>();
-    for(Linea l : lineasDibujadas) {
-        if(l.esAdyacente(linea) && !l.equals(linea)) {
-            adyacentes.add(l);
+    private List<Linea> obtenerAdyacentes(Linea linea) {
+        List<Linea> adyacentes = new ArrayList<>();
+        for(Linea l : lineasDibujadas) {
+            if(l.esAdyacente(linea) && !l.equals(linea)) {
+                adyacentes.add(l);
+            }
         }
+        return adyacentes;
     }
-    return adyacentes;
-}
-        
+            
     private boolean formaCuadrado(Linea l1, Linea l2, Linea l3, Linea l4) {
-    ListaEnlazada<Punto> puntos = new ListaEnlazada<>();
-    agregarSiNoExiste(puntos, l1.getPunto1());
-    agregarSiNoExiste(puntos, l1.getPunto2());
-    agregarSiNoExiste(puntos, l2.getPunto1());
-    agregarSiNoExiste(puntos, l2.getPunto2());
-    agregarSiNoExiste(puntos, l3.getPunto1());
-    agregarSiNoExiste(puntos, l3.getPunto2());
-    agregarSiNoExiste(puntos, l4.getPunto1());
-    agregarSiNoExiste(puntos, l4.getPunto2());
-    return puntos.getAll().size() == 4;
-}
-
-private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
-    for (Punto p : lista.getAll()) {
-        if (p.getX() == punto.getX() && p.getY() == punto.getY()) {
-            return;
-        }   
+        ListaEnlazada<Punto> puntos = new ListaEnlazada<>();
+        agregarSiNoExiste(puntos, l1.getPunto1());
+        agregarSiNoExiste(puntos, l1.getPunto2());
+        agregarSiNoExiste(puntos, l2.getPunto1());
+        agregarSiNoExiste(puntos, l2.getPunto2());
+        agregarSiNoExiste(puntos, l3.getPunto1());
+        agregarSiNoExiste(puntos, l3.getPunto2());
+        agregarSiNoExiste(puntos, l4.getPunto1());
+        agregarSiNoExiste(puntos, l4.getPunto2());
+        return puntos.getAll().size() == 4;
     }
-    lista.add(punto);
-}
+
+    private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
+        for (Punto p : lista.getAll()) {
+            if (p.getX() == punto.getX() && p.getY() == punto.getY()) {
+                return;
+            }   
+        }
+        lista.add(punto);
+    }
 
     public PanelDePuntos(int filas, int columnas){
 
@@ -294,10 +294,6 @@ private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
                 puntosTotales.add(punto);
             }
         }
-
-        
-
-    
 
         addMouseListener(new MouseAdapter(){
             public void mouseClicked(MouseEvent e){
@@ -323,31 +319,22 @@ private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
                             }
                             puntosSeleccionados.clear();
                             repaint();
-                                
-                            
-                            
-                        
-
-                            
-                        }
-                    
-                    
-                    
+                                   
+                        }  
                 }
-
                 
             }
 
         });
     }
     private boolean esLineaValida(Punto p1, Punto p2) {
-    for (Linea linea : lineasDibujadas) {
-        if (linea.equals(new Linea(p1, p2))) {
-            return false;
+        for (Linea linea : lineasDibujadas) {
+            if (linea.equals(new Linea(p1, p2))) {
+                return false;
+            }
         }
+        return (p1.getX() == p2.getX() || p1.getY() == p2.getY()) && calcularDistancia(p1, p2) == 100;
     }
-    return (p1.getX() == p2.getX() || p1.getY() == p2.getY()) && calcularDistancia(p1, p2) == 100;
-}
 
     private double calcularDistancia(Punto p1, Punto p2){
         return Math.sqrt(Math.pow(p2.getX() - p1.getX(), 2) + Math.pow(p2.getY() - p1.getY(), 2));
@@ -367,10 +354,6 @@ private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
             }
             return puntoCercano;
         }
-        
-
-
-
 
     protected void paintComponent(Graphics g){
     super.paintComponent(g);
@@ -414,23 +397,18 @@ private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
     }
 
 //Función para enviar las coordenadas al servidor
-    private void enviarCoordenadasServidor(String coordenadas){
-        try{
+    private void enviarCoordenadasServidor(String coordenadas) {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("coordenadas", coordenadas);
 
+            // Crear un cliente socket y enviar el JSON al servidor
             Socket socketclient = new Socket("localhost", 9991); // Cambia "localhost" por la dirección IP del servidor si es necesario
             DataOutputStream dos = new DataOutputStream(socketclient.getOutputStream());
-
-            JSONObject jsoncoordenadas = new JSONObject();
-            jsoncoordenadas.put("coordenadas",coordenadas);
-
-            String jsonstr = jsoncoordenadas.toString();
-
-
-            dos.writeUTF(jsonstr);
+            dos.writeUTF(json.toString());
             dos.close();
             socketclient.close();
-
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -497,22 +475,22 @@ class Linea {
     public boolean esAdyacente(Linea otra) {
         return this.punto1.equals(otra.punto1) || this.punto1.equals(otra.punto2) ||
                this.punto2.equals(otra.punto1) || this.punto2.equals(otra.punto2);
-}
-
-public boolean esPerpendicular(Linea otra) {
-    if (this.punto1.getX() == this.punto2.getX()) { // Si esta línea es vertical
-        return otra.punto1.getY() == otra.punto2.getY(); // La otra debe ser horizontal
-    } else if (this.punto1.getY() == this.punto2.getY()) { // Si esta línea es horizontal
-        return otra.punto1.getX() == otra.punto2.getX(); // La otra debe ser vertical
     }
-    return false;
-}
-public boolean equals(Object obj) {
+
+    public boolean esPerpendicular(Linea otra) {
+        if (this.punto1.getX() == this.punto2.getX()) { // Si esta línea es vertical
+            return otra.punto1.getY() == otra.punto2.getY(); // La otra debe ser horizontal
+        } else if (this.punto1.getY() == this.punto2.getY()) { // Si esta línea es horizontal
+            return otra.punto1.getX() == otra.punto2.getX(); // La otra debe ser vertical
+        }
+        return false;
+    }
+    public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         Linea linea = (Linea) obj;
         return (punto1.equals(linea.punto1) && punto2.equals(linea.punto2)) ||
-               (punto1.equals(linea.punto2) && punto2.equals(linea.punto1));
+            (punto1.equals(linea.punto2) && punto2.equals(linea.punto1));
     }
 }
 
