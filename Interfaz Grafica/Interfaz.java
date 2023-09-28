@@ -48,8 +48,8 @@ public class Interfaz {
         milamina.setBackground(Color.darkGray);
         frame.add(milamina);
 
-        JLabel label = new JLabel("WELCOME TO THE GAME");
-        label.setBounds(450,10,350,30);
+        JLabel label = new JLabel(" CONNECT DOTS    ");
+        label.setBounds(490,15,350,30);
         label.setFont(new Font("MV Boli",Font.PLAIN,25));
         label.setForeground(Color.white);
         milamina.add(label); 
@@ -74,6 +74,19 @@ public class Interfaz {
             }
         });
         milamina.add(infobtn);
+
+        JButton extraButton = new JButton();
+        extraButton.setBounds(525, 300, 150, 50); // Ajusta la posición y el tamaño según tus preferencias
+        extraButton.setText("EXTRA");
+        extraButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+        // Abre la nueva ventana aquí
+        new VentanaExtra();
+        frame.dispose(); // Cierra la ventana actual
+    }
+});
+milamina.add(extraButton);
+
 
         frame.setVisible(true);
     }
@@ -185,6 +198,30 @@ class Ventana3 extends JFrame {
         SwingUtilities.invokeLater(() -> {
             new Ventana3();
         });
+    }
+}
+
+class VentanaExtra extends JFrame {
+    public VentanaExtra() {
+        setTitle("LeaderBoard");
+        setSize(800, 600); // Ajusta el tamaño de la ventana según tus preferencias
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(null); // Ajusta el administrador de diseño según tus necesidades
+        setResizable(false);
+
+    JButton returnButton = new JButton();
+    returnButton.setBounds(20, 20, 100, 30); // Ajusta la posición y el tamaño según tus preferencias
+    returnButton.setText("Return");
+    returnButton.addActionListener(new ActionListener() {
+    public void actionPerformed(ActionEvent e) {
+        new Interfaz(); // Abre la interfaz principal
+        dispose(); // Cierra la ventana actual
+    }
+});
+add(returnButton);
+
+        
+        setVisible(true);
     }
 }
 
