@@ -76,8 +76,21 @@ public class Interfaz {
             }
         });
         milamina.add(infobtn);
+        JButton extraButton = new JButton();
+        extraButton.setBounds(525, 300, 150, 50); // Ajusta la posición y el tamaño según tus preferencias
+        extraButton.setText("LEADERBOARD");
+        extraButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                // Abre la nueva ventana aquí
+                new VentanaExtra();
+                frame.dispose(); // Cierra la ventana actual
+            }
+        });
+        milamina.add(extraButton);
 
         frame.setVisible(true);
+
+
     }
 
     public static void main(String[] args) {
@@ -190,6 +203,28 @@ class Ventana3 extends JFrame {
     }
 }
 
+class VentanaExtra extends JFrame {
+    public VentanaExtra() {
+        setTitle("LeaderBoard");
+        setSize(800, 600); // Ajusta el tamaño de la ventana según tus preferencias
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(null); // Ajusta el administrador de diseño según tus necesidades
+        setResizable(false);
+
+    JButton returnButton = new JButton();
+    returnButton.setBounds(20, 20, 100, 30); // Ajusta la posición y el tamaño según tus preferencias
+    returnButton.setText("Return");
+    returnButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            new Interfaz(); // Abre la interfaz principal
+            dispose(); // Cierra la ventana actual
+        }
+    });
+    add(returnButton);
+    
+    setVisible(true);
+    }
+}
 
 class Ventanagame extends JFrame{
 
@@ -202,6 +237,13 @@ class Ventanagame extends JFrame{
 
         PanelDePuntos panelDePuntos = new PanelDePuntos(10, 10);
         panelDePuntos.setBounds(0, 0, 1200, 675);
+
+        //prueba de cuadrado
+
+        //panelDePuntos.conectarPuntos(100, 100, 200, 100);
+        //panelDePuntos.conectarPuntos(200, 100, 200, 200);
+        //panelDePuntos.conectarPuntos(100, 100, 100, 200);
+        //panelDePuntos.conectarPuntos(100, 200, 200, 200);
 
         add(panelDePuntos);
 
@@ -216,9 +258,6 @@ class PanelDePuntos extends JPanel{
     private List<Punto> puntosSeleccionados = new ArrayList<>();
     private List<Linea> lineasDibujadas = new ArrayList<>();
     private ListaEnlazada<List<Punto>> cuadradosCompletados = new ListaEnlazada<>();
-
-
-    
 
     private void verificarCuadrado(Linea nuevaLinea) {
         List<Linea> adyacentes = obtenerAdyacentes(nuevaLinea);
@@ -410,6 +449,22 @@ class PanelDePuntos extends JPanel{
             socketclient.close();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void conectarPuntos(int x1, int y1, int x2, int y2) {
+        Punto punto1 = getPuntoCercano(x1, y1);
+        Punto punto2 = getPuntoCercano(x2, y2);
+
+        if (punto1 != null && punto2 != null) {
+            if (esLineaValida(punto1, punto2)) {
+                Linea linea = new Linea(punto1, punto2);
+                lineasDibujadas.add(linea);
+                verificarCuadrado(linea);
+                repaint();
+            } else {
+                System.out.println("Solo se pueden hacer lineas verticales, horizontales y con un espacio de 100 entre puntos");
+            }
         }
     }
 
