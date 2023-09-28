@@ -2,10 +2,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.io.DataOutputStream;
+import java.util.List;
 
 public class Servidor {
     private JTextArea areadetexto;
@@ -55,7 +59,9 @@ public class Servidor {
                     ServerSocket socketserv = new ServerSocket(9991);
                     while (true) {
                         Socket socket = socketserv.accept();
-                        new ClientHandler(socket, servidor).start();
+                        ClientHandler handler = new ClientHandler(socket, servidor);
+                        servidor.addClientHandler(handler);
+                        handler.start();
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -63,28 +69,67 @@ public class Servidor {
             }).start();
         });
     }
+    
+    private List<ClientHandler> clientHandlers = new ArrayList<>();
+
+    public synchronized void addClientHandler(ClientHandler handler) {
+        clientHandlers.add(handler);
+    }
+
+    public synchronized void removeClientHandler(ClientHandler handler) {
+        clientHandlers.remove(handler);
+    }
+
+    public synchronized void sendToAll(String message) {
+        for(ClientHandler handler : clientHandlers) {
+            handler.sendMessage(message);
+        }
+    }
+
+
 }
 
 class ClientHandler extends Thread {
     private Socket socket;
     private Servidor servidor;
-
+    private DataOutputStream out;
+    
     public ClientHandler(Socket socket, Servidor servidor) {
         this.socket = socket;
         this.servidor = servidor;
+        try {
+            this.out = new DataOutputStream(socket.getOutputStream());
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendMessage(String message) {
+        try {
+            out.writeUTF(message);
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void run() {
         try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            DataInputStream in = new DataInputStream(socket.getInputStream());
             String coordenadas;
-            while ((coordenadas = in.readLine()) != null) {
-                servidor.appendMessage("Recibido" + coordenadas);
+            while (true) {
+                coordenadas = in.readUTF();  // Recibes el mensaje del cliente
+                servidor.appendMessage(coordenadas);  // Agrega el mensaje a tu área de texto en el servidor
+                servidor.sendToAll(coordenadas);     // Envía a todos los clientes
             }
-            in.close();
-            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            servidor.removeClientHandler(this);
         }
     }
 }

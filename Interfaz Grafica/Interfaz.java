@@ -14,8 +14,9 @@ import java.util.List;
 import java.io.DataOutputStream;
 import java.net.Socket;
 import org.json.JSONObject;
-
-
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.io.DataInputStream;
 
 public class Interfaz {
 
@@ -238,6 +239,9 @@ class Ventanagame extends JFrame{
         PanelDePuntos panelDePuntos = new PanelDePuntos(10, 10);
         panelDePuntos.setBounds(0, 0, 1200, 675);
 
+        ClienteThread clienteThread = new ClienteThread(panelDePuntos);
+        clienteThread.start();
+
         //prueba de cuadrado
 
         //panelDePuntos.conectarPuntos(100, 100, 200, 100);
@@ -346,7 +350,7 @@ class PanelDePuntos extends JPanel{
                             Punto p2 = puntosSeleccionados.get(1);
 
 
-                            String coordenadas = p1.toString() + "-" + p2.toString();
+                            String coordenadas = p1.toString() + p2.toString();
                             enviarCoordenadasServidor(coordenadas);
                             if(esLineaValida(p1,p2)){
                                 Linea linea = new Linea(p1,p2);
@@ -438,13 +442,10 @@ class PanelDePuntos extends JPanel{
 //Función para enviar las coordenadas al servidor
     private void enviarCoordenadasServidor(String coordenadas) {
         try {
-            JSONObject json = new JSONObject();
-            json.put("coordenadas", coordenadas);
-
-            // Crear un cliente socket y enviar el JSON al servidor
-            Socket socketclient = new Socket("localhost", 9991); // Cambia "localhost" por la dirección IP del servidor si es necesario
+            Socket socketclient = new Socket("localhost", 9991);
             DataOutputStream dos = new DataOutputStream(socketclient.getOutputStream());
-            dos.writeUTF(json.toString());
+            dos.writeUTF(coordenadas);
+            dos.flush();   // Asegúrate de que el mensaje se envíe antes de cerrar el socket.
             dos.close();
             socketclient.close();
         } catch (Exception e) {
@@ -548,6 +549,52 @@ class Linea {
             (punto1.equals(linea.punto2) && punto2.equals(linea.punto1));
     }
 }
+
+class ClienteThread extends Thread {
+    private Socket socket;
+    private PanelDePuntos panel;
+
+    public ClienteThread(PanelDePuntos panel) {
+        this.panel = panel;
+        try {
+            this.socket = new Socket("localhost", 9991);  // Dirección y puerto del servidor
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void run() {
+        try {
+            DataInputStream in = new DataInputStream(socket.getInputStream());
+
+            while (true) {
+                String mensaje = in.readUTF();
+                procesarMensaje(mensaje);
+            }
+
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void procesarMensaje(String mensaje) {
+        // Ahora el mensaje ya es simplemente "(x1, y1)(x2, y2)", así que lo procesamos directamente
+        Pattern pattern = Pattern.compile("\\((\\d+), (\\d+)\\)\\((\\d+), (\\d+)\\)");
+        Matcher matcher = pattern.matcher(mensaje);
+
+        if (matcher.find()) {
+            int x1 = Integer.parseInt(matcher.group(1));
+            int y1 = Integer.parseInt(matcher.group(2));
+            int x2 = Integer.parseInt(matcher.group(3));
+            int y2 = Integer.parseInt(matcher.group(4));
+
+            SwingUtilities.invokeLater(() -> {
+                panel.conectarPuntos(x1, y1, x2, y2);
+            });
+        }
+    }
+}
+
 
 
 class Nodo<T> {
