@@ -414,23 +414,18 @@ private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
     }
 
 //Función para enviar las coordenadas al servidor
-    private void enviarCoordenadasServidor(String coordenadas){
-        try{
+      private void enviarCoordenadasServidor(String coordenadas) {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("coordenadas", coordenadas);
 
+            // Crear un cliente socket y enviar el JSON al servidor
             Socket socketclient = new Socket("localhost", 9991); // Cambia "localhost" por la dirección IP del servidor si es necesario
             DataOutputStream dos = new DataOutputStream(socketclient.getOutputStream());
-
-            JSONObject jsoncoordenadas = new JSONObject();
-            jsoncoordenadas.put("coordenadas",coordenadas);
-
-            String jsonstr = jsoncoordenadas.toString();
-
-
-            dos.writeUTF(jsonstr);
+            dos.writeUTF(json.toString());
             dos.close();
             socketclient.close();
-
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
