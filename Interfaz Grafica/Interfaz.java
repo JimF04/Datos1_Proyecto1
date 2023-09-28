@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.io.DataOutputStream;
 import java.net.Socket;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 
 public class Interfaz {
@@ -77,7 +79,7 @@ public class Interfaz {
 
         JButton extraButton = new JButton();
         extraButton.setBounds(525, 300, 150, 50); // Ajusta la posición y el tamaño según tus preferencias
-        extraButton.setText("EXTRA");
+        extraButton.setText("LEADERBOARD");
         extraButton.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
         // Abre la nueva ventana aquí
@@ -449,19 +451,22 @@ private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
     }
 
 
-    private void enviarCoordenadasServidor(String coordenadas){
-        try{
+  private void enviarCoordenadasServidor(String coordenadas) {
+    try {
+        JSONObject json = new JSONObject();
+        json.put("coordenadas", coordenadas);
 
-            Socket socketclient = new Socket("localhost", 9991); // Cambia "localhost" por la dirección IP del servidor si es necesario
-            DataOutputStream dos = new DataOutputStream(socketclient.getOutputStream());
-            dos.writeUTF(coordenadas);
-            dos.close();
-            socketclient.close();
-
-        } catch (Exception e){
-            e.printStackTrace();
-        }
+        // Crear un cliente socket y enviar el JSON al servidor
+        Socket socketclient = new Socket("localhost", 9991); // Cambia "localhost" por la dirección IP del servidor si es necesario
+        DataOutputStream dos = new DataOutputStream(socketclient.getOutputStream());
+        dos.writeUTF(json.toString());
+        dos.close();
+        socketclient.close();
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+}
+
 
 
 }

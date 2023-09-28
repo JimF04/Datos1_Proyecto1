@@ -24,8 +24,8 @@ public class Servidor {
 
         canal.add(laminaserver);
 
-        areadetexto = new JTextArea(null, null, 10, 10);
-        areadetexto.setBounds(100, 100, 200, 200);
+        areadetexto = new JTextArea(null, null, 20, 20);
+        areadetexto.setBounds(100, 100, 400, 400);
         areadetexto.setEditable(false);
         laminaserver.add(areadetexto);
 
