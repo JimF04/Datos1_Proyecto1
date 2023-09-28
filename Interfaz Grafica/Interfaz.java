@@ -11,8 +11,11 @@ import java.io.IOException;
 import java.awt.event.MouseAdapter;
 import java.util.ArrayList;
 import java.util.List;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.io.DataOutputStream;
+import java.net.Socket;
+import org.json.JSONObject;
+
+
 
 public class Interfaz {
 
@@ -74,19 +77,6 @@ public class Interfaz {
         });
         milamina.add(infobtn);
 
-        frame.getContentPane().addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                // Verifica si la tecla presionada es la tecla 'A' (mayúscula o minúscula)
-                if (e.getKeyChar() == 'A') {
-                    // Activa el botón programáticamente
-                    playbtn.doClick();
-                }
-            }
-        });
-        frame.getContentPane().setFocusable(true);
-        frame.getContentPane().requestFocus();
-
         frame.setVisible(true);
     }
 
@@ -142,7 +132,8 @@ class Ventana2 extends JFrame {
                 dispose();
             }
 
-        });       
+        });
+        
 
         milaminagame.add(gamebtn);
 
@@ -151,40 +142,54 @@ class Ventana2 extends JFrame {
 }
 
 class Ventana3 extends JFrame {
-    public Ventana3(){
+    private BufferedImage backgroundImage;
+
+    public Ventana3() {
         setLayout(null);
         setTitle("Informacion");
         setSize(1200, 675);
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel milaminainfo = new JPanel();
-        milaminainfo.setLayout(null);
-        milaminainfo.setSize(1200,675);
-        milaminainfo.setBackground(Color.black);
+        try {
+            // Cargar la imagen de fondo
+            backgroundImage = ImageIO.read(getClass().getResource("instrucciones.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        JLabel infor = new JLabel();
-        infor.setText("<html>Este proyecto fue elaborado por:<br>Jimmy Feng Feng<br>Gabriel Fernandez Vargas<br>y Emanuel Rojas Fernandez</html>");
-        infor.setBounds(400,10,600,200);
-        infor.setFont(new Font("MV Boli",Font.PLAIN,30));
-        infor.setForeground(Color.white);
-        milaminainfo.add(infor);
+        JPanel milaminainfo = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                // Dibuja la imagen de fondo
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            }
+        };
+        milaminainfo.setLayout(null);
+        milaminainfo.setSize(1200, 675);
 
         JButton returnbtni = new JButton();
-        returnbtni.setBounds(20, 550, 100 , 30);
+        returnbtni.setBounds(20, 600, 100, 30);
         returnbtni.setText("RETURN");
-        returnbtni.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e){
-                new Interfaz();
-                dispose();
-            }
+        returnbtni.addActionListener(e -> {
+            new Interfaz();
+            dispose();
         });
         milaminainfo.add(returnbtni);
 
         add(milaminainfo);
+
         setVisible(true);
     }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new Ventana3();
+        });
+    }
 }
+
 
 class Ventanagame extends JFrame{
 
@@ -192,11 +197,11 @@ class Ventanagame extends JFrame{
         setLayout(null);
         setSize(1000,675);
         setTitle("CONNECT THE DOTS");
+        setResizable(false);
         
 
         PanelDePuntos panelDePuntos = new PanelDePuntos(10, 10);
         panelDePuntos.setBounds(0, 0, 1200, 675);
-
 
         add(panelDePuntos);
 
@@ -210,6 +215,75 @@ class PanelDePuntos extends JPanel{
     private ListaEnlazada<Punto> puntosTotales = new ListaEnlazada<>();
     private List<Punto> puntosSeleccionados = new ArrayList<>();
     private List<Linea> lineasDibujadas = new ArrayList<>();
+    private ListaEnlazada<List<Punto>> cuadradosCompletados = new ListaEnlazada<>();
+
+
+    
+
+    private void verificarCuadrado(Linea nuevaLinea) {
+        List<Linea> adyacentes = obtenerAdyacentes(nuevaLinea);
+        for (Linea linea1 : adyacentes) {
+            for (Linea linea2 : obtenerAdyacentes(linea1)) {
+                for (Linea linea3 : obtenerAdyacentes(linea2)) {
+                    // Verificar que las líneas son distintas
+                    if (linea1.equals(nuevaLinea) || linea2.equals(nuevaLinea) || linea3.equals(nuevaLinea)
+                        || linea1.equals(linea2) || linea1.equals(linea3) || linea2.equals(linea3)) {
+                        continue;
+                    }
+                    // Verificar que las líneas forman un cuadrado
+                    if (formaCuadrado(nuevaLinea, linea1, linea2, linea3)) {
+                        ListaEnlazada<Punto> cuadrado = new ListaEnlazada<>();
+                        agregarSiNoExiste(cuadrado, nuevaLinea.getPunto1());
+                        agregarSiNoExiste(cuadrado, nuevaLinea.getPunto2());
+                        agregarSiNoExiste(cuadrado, linea1.getPunto1());
+                        agregarSiNoExiste(cuadrado, linea1.getPunto2());
+                        agregarSiNoExiste(cuadrado, linea2.getPunto1());
+                        agregarSiNoExiste(cuadrado, linea2.getPunto2());
+                        agregarSiNoExiste(cuadrado, linea3.getPunto1());
+                        agregarSiNoExiste(cuadrado, linea3.getPunto2());
+                        if (cuadrado.getAll().size() == 4) {
+                            cuadradosCompletados.add(cuadrado.getAll());
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+
+private List<Linea> obtenerAdyacentes(Linea linea) {
+    List<Linea> adyacentes = new ArrayList<>();
+    for(Linea l : lineasDibujadas) {
+        if(l.esAdyacente(linea) && !l.equals(linea)) {
+            adyacentes.add(l);
+        }
+    }
+    return adyacentes;
+}
+        
+    private boolean formaCuadrado(Linea l1, Linea l2, Linea l3, Linea l4) {
+    ListaEnlazada<Punto> puntos = new ListaEnlazada<>();
+    agregarSiNoExiste(puntos, l1.getPunto1());
+    agregarSiNoExiste(puntos, l1.getPunto2());
+    agregarSiNoExiste(puntos, l2.getPunto1());
+    agregarSiNoExiste(puntos, l2.getPunto2());
+    agregarSiNoExiste(puntos, l3.getPunto1());
+    agregarSiNoExiste(puntos, l3.getPunto2());
+    agregarSiNoExiste(puntos, l4.getPunto1());
+    agregarSiNoExiste(puntos, l4.getPunto2());
+    return puntos.getAll().size() == 4;
+}
+
+private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
+    for (Punto p : lista.getAll()) {
+        if (p.getX() == punto.getX() && p.getY() == punto.getY()) {
+            return;
+        }   
+    }
+    lista.add(punto);
+}
 
     public PanelDePuntos(int filas, int columnas){
 
@@ -220,6 +294,10 @@ class PanelDePuntos extends JPanel{
                 puntosTotales.add(punto);
             }
         }
+
+        
+
+    
 
         addMouseListener(new MouseAdapter(){
             public void mouseClicked(MouseEvent e){
@@ -232,13 +310,21 @@ class PanelDePuntos extends JPanel{
                             Punto p1 = puntosSeleccionados.get(0);
                             Punto p2 = puntosSeleccionados.get(1);
 
-                            if ((p1.getX() == p2.getX() || p1.getY() == p2.getY()) && (calcularDistancia(p1, p2) == 100)==true ){
-                                lineasDibujadas.add(new Linea(p1, p2));
-                        repaint();
-                            } else{
+
+                            String coordenadas = p1.toString() + "-" + p2.toString();
+                            enviarCoordenadasServidor(coordenadas);
+                            if(esLineaValida(p1,p2)){
+                                Linea linea = new Linea(p1,p2);
+                                lineasDibujadas.add(linea);
+                                verificarCuadrado(linea);
+                            }else{
                                 System.out.println("Solo se pueden hacer lineas verticales, horizontales y con un espacio de 100 entre punto");
+
                             }
                             puntosSeleccionados.clear();
+                            repaint();
+                                
+                            
                             
                         
 
@@ -254,6 +340,14 @@ class PanelDePuntos extends JPanel{
 
         });
     }
+    private boolean esLineaValida(Punto p1, Punto p2) {
+    for (Linea linea : lineasDibujadas) {
+        if (linea.equals(new Linea(p1, p2))) {
+            return false;
+        }
+    }
+    return (p1.getX() == p2.getX() || p1.getY() == p2.getY()) && calcularDistancia(p1, p2) == 100;
+}
 
     private double calcularDistancia(Punto p1, Punto p2){
         return Math.sqrt(Math.pow(p2.getX() - p1.getX(), 2) + Math.pow(p2.getY() - p1.getY(), 2));
@@ -264,7 +358,7 @@ class PanelDePuntos extends JPanel{
         double distanciaMinima = Double.MAX_VALUE;
         for(Punto punto : puntosTotales.getAll()){
                 double distancia = Math.sqrt(Math.pow(punto.getX() - x, 2) + Math.pow(punto.getY() - y,2));
-                if (distancia<20 && distancia<distanciaMinima){
+                if (distancia<35 && distancia<distanciaMinima){
                         distanciaMinima=distancia;
                         puntoCercano = punto;
                     
@@ -279,21 +373,66 @@ class PanelDePuntos extends JPanel{
 
 
     protected void paintComponent(Graphics g){
-        super.paintComponent(g);
+    super.paintComponent(g);
 
-        for (Punto punto : puntosTotales.getAll()) {
-        g.drawOval(punto.getX(), punto.getY(), 5, 5);
+    g.setColor(Color.BLACK);  // Color de los puntos
+    for (Punto punto : puntosTotales.getAll()) {
+        g.fillOval(punto.getX() - 5, punto.getY() - 5, 9,9 );  // Dibuja un círculo con radio 5 en cada punto
     }
-         synchronized(puntosSeleccionados) {
+
+    for (List<Punto> cuadrado : cuadradosCompletados.getAll()) {     
+        cuadrado.sort((p1, p2) -> {
+            if(p1.getX() != p2.getX()) return p1.getX() - p2.getX();
+            return p1.getY() - p2.getY();
+        });
+
+        Punto p1 = cuadrado.get(0);
+        Punto p2 = cuadrado.get(1);
+        Punto p3 = cuadrado.get(2);
+        Punto p4 = cuadrado.get(3);
+
+        int[] xPoints = {p1.getX(), p2.getX(), p4.getX(), p3.getX()};
+        int[] yPoints = {p1.getY(), p2.getY(), p4.getY(), p3.getY()};
+
+        g.setColor(Color.RED);
+        g.fillPolygon(xPoints, yPoints, 4);
+    }
+
+    synchronized(puntosSeleccionados) {
         if (puntosSeleccionados.size() == 2) {
             puntosSeleccionados.clear();
         }
-        }
-        for(Linea linea : lineasDibujadas) {
+    }
+    for(Linea linea : lineasDibujadas) {
         Punto p1 = linea.getPunto1();
         Punto p2 = linea.getPunto2();
         g.drawLine(p1.getX() + 2, p1.getY() +2 , p2.getX() + 2, p2.getY() + 2);
+        g.setColor(Color.BLACK);
     }
+    
+
+    }
+
+//Función para enviar las coordenadas al servidor
+    private void enviarCoordenadasServidor(String coordenadas){
+        try{
+
+            Socket socketclient = new Socket("localhost", 9991); // Cambia "localhost" por la dirección IP del servidor si es necesario
+            DataOutputStream dos = new DataOutputStream(socketclient.getOutputStream());
+
+            JSONObject jsoncoordenadas = new JSONObject();
+            jsoncoordenadas.put("coordenadas",coordenadas);
+
+            String jsonstr = jsoncoordenadas.toString();
+
+
+            dos.writeUTF(jsonstr);
+            dos.close();
+            socketclient.close();
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 
@@ -315,6 +454,13 @@ class PanelDePuntos extends JPanel{
 
     public void setX(int x) {
         this.x = x;
+    }
+
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Punto punto = (Punto) obj;
+        return x == punto.x && y == punto.y;
     }
 
     public int getY() {
@@ -346,6 +492,27 @@ class Linea {
 
     public Punto getPunto2() {
         return punto2;
+    }
+
+    public boolean esAdyacente(Linea otra) {
+        return this.punto1.equals(otra.punto1) || this.punto1.equals(otra.punto2) ||
+               this.punto2.equals(otra.punto1) || this.punto2.equals(otra.punto2);
+}
+
+public boolean esPerpendicular(Linea otra) {
+    if (this.punto1.getX() == this.punto2.getX()) { // Si esta línea es vertical
+        return otra.punto1.getY() == otra.punto2.getY(); // La otra debe ser horizontal
+    } else if (this.punto1.getY() == this.punto2.getY()) { // Si esta línea es horizontal
+        return otra.punto1.getX() == otra.punto2.getX(); // La otra debe ser vertical
+    }
+    return false;
+}
+public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Linea linea = (Linea) obj;
+        return (punto1.equals(linea.punto1) && punto2.equals(linea.punto2)) ||
+               (punto1.equals(linea.punto2) && punto2.equals(linea.punto1));
     }
 }
 

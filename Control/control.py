@@ -3,7 +3,7 @@ import pyautogui
 import threading
 
 def serial_thread():
-#Configurar la comunicación serial con arduino
+    #Configurar la comunicación serial con arduino
     serComm = serial.Serial('/dev/cu.usbmodem11201', 9600)
     while True:
         try:
