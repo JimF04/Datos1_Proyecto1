@@ -1,4 +1,3 @@
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -14,9 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.io.DataOutputStream;
 import java.net.Socket;
-import org.json.JSONException;
 import org.json.JSONObject;
-import java.io.DataInputStream;
+
+
 
 public class Interfaz {
 
@@ -77,21 +76,8 @@ public class Interfaz {
             }
         });
         milamina.add(infobtn);
-        JButton extraButton = new JButton();
-        extraButton.setBounds(525, 300, 150, 50); // Ajusta la posición y el tamaño según tus preferencias
-        extraButton.setText("LEADERBOARD");
-        extraButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                // Abre la nueva ventana aquí
-                new VentanaExtra();
-                frame.dispose(); // Cierra la ventana actual
-            }
-        });
-        milamina.add(extraButton);
 
         frame.setVisible(true);
-
-
     }
 
     public static void main(String[] args) {
@@ -142,15 +128,8 @@ class Ventana2 extends JFrame {
         gamebtn.setText("GAME");
         gamebtn.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                String jugador = areadenick.getText();
-                if (jugador.trim().isEmpty() || jugador.contains(" ")) {
-                    JOptionPane.showMessageDialog(Ventana2.this, "Sin espacios", "Error", JOptionPane.ERROR_MESSAGE);
-                } else if (jugador.contains(" ")){
-                    JOptionPane.showMessageDialog(Ventana2.this, "Está vacío!", "Error", JOptionPane.ERROR_MESSAGE);
-                } else {
-                    Ventanagame ventanaGame = new Ventanagame(jugador);
-                    dispose();
-                }
+                new Ventanagame();
+                dispose();
             }
 
         });
@@ -211,64 +190,20 @@ class Ventana3 extends JFrame {
     }
 }
 
-class VentanaExtra extends JFrame {
-    public VentanaExtra() {
-        setTitle("LeaderBoard");
-        setSize(800, 600); // Ajusta el tamaño de la ventana según tus preferencias
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(null); // Ajusta el administrador de diseño según tus necesidades
-        setResizable(false);
-
-    JButton returnButton = new JButton();
-    returnButton.setBounds(20, 20, 100, 30); // Ajusta la posición y el tamaño según tus preferencias
-    returnButton.setText("Return");
-    returnButton.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            new Interfaz(); // Abre la interfaz principal
-            dispose(); // Cierra la ventana actual
-        }
-    });
-    add(returnButton);
-    
-    setVisible(true);
-    }
-}
 
 class Ventanagame extends JFrame{
 
-    private JLabel labelJugador;
-    private JLabel labelTurno;
-
-    public Ventanagame(String jugador){
-
+    public Ventanagame(){
         setLayout(null);
-        setSize(1000,1000);
+        setSize(1000,675);
         setTitle("CONNECT THE DOTS");
         setResizable(false);
-
-        labelJugador = new JLabel("Jugador: " + jugador);
-        labelJugador.setFont(new Font("MV Boli", Font.PLAIN, 20));
-        labelJugador.setForeground(Color.BLACK); // O el color que prefieras
-        labelJugador.setBounds(10, 10, 300, 30); // Ajusta la posición y tamaño según lo necesites
-
-        add(labelJugador);
-
-        labelTurno = new JLabel("Esperando turno...");
-        labelTurno.setFont(new Font("MV Boli", Font.PLAIN, 20));
-        labelTurno.setForeground(Color.RED); // El color inicial es rojo, lo cambiaremos a verde cuando sea el turno del jugador
-        labelTurno.setBounds(600, 10, 300, 30);
-        add(labelTurno);
         
 
-        PanelDePuntos panelDePuntos = new PanelDePuntos(8, 18,labelTurno);
-        panelDePuntos.setBounds(130, 100, 720, 720);
-        panelDePuntos.setBackground(Color.white);
-        ClienteThread clienteThread = new ClienteThread(panelDePuntos);
-        clienteThread.start();
+        PanelDePuntos panelDePuntos = new PanelDePuntos(10, 10);
+        panelDePuntos.setBounds(0, 0, 1200, 675);
 
-        
-
-        add(panelDePuntos, BorderLayout.CENTER);
+        add(panelDePuntos);
 
         setVisible(true);
 
@@ -281,9 +216,9 @@ class PanelDePuntos extends JPanel{
     private List<Punto> puntosSeleccionados = new ArrayList<>();
     private List<Linea> lineasDibujadas = new ArrayList<>();
     private ListaEnlazada<List<Punto>> cuadradosCompletados = new ListaEnlazada<>();
-    public boolean esMiTurno = false;
-    private JLabel labelTurno;
-    private ClienteThread clienteThread;
+
+
+    
 
     private void verificarCuadrado(Linea nuevaLinea) {
         List<Linea> adyacentes = obtenerAdyacentes(nuevaLinea);
@@ -318,55 +253,54 @@ class PanelDePuntos extends JPanel{
 
 
 
-    private List<Linea> obtenerAdyacentes(Linea linea) {
-        List<Linea> adyacentes = new ArrayList<>();
-        for(Linea l : lineasDibujadas) {
-            if(l.esAdyacente(linea) && !l.equals(linea)) {
-                adyacentes.add(l);
-            }
+private List<Linea> obtenerAdyacentes(Linea linea) {
+    List<Linea> adyacentes = new ArrayList<>();
+    for(Linea l : lineasDibujadas) {
+        if(l.esAdyacente(linea) && !l.equals(linea)) {
+            adyacentes.add(l);
         }
-        return adyacentes;
     }
-            
+    return adyacentes;
+}
+        
     private boolean formaCuadrado(Linea l1, Linea l2, Linea l3, Linea l4) {
-        ListaEnlazada<Punto> puntos = new ListaEnlazada<>();
-        agregarSiNoExiste(puntos, l1.getPunto1());
-        agregarSiNoExiste(puntos, l1.getPunto2());
-        agregarSiNoExiste(puntos, l2.getPunto1());
-        agregarSiNoExiste(puntos, l2.getPunto2());
-        agregarSiNoExiste(puntos, l3.getPunto1());
-        agregarSiNoExiste(puntos, l3.getPunto2());
-        agregarSiNoExiste(puntos, l4.getPunto1());
-        agregarSiNoExiste(puntos, l4.getPunto2());
-        return puntos.getAll().size() == 4;
+    ListaEnlazada<Punto> puntos = new ListaEnlazada<>();
+    agregarSiNoExiste(puntos, l1.getPunto1());
+    agregarSiNoExiste(puntos, l1.getPunto2());
+    agregarSiNoExiste(puntos, l2.getPunto1());
+    agregarSiNoExiste(puntos, l2.getPunto2());
+    agregarSiNoExiste(puntos, l3.getPunto1());
+    agregarSiNoExiste(puntos, l3.getPunto2());
+    agregarSiNoExiste(puntos, l4.getPunto1());
+    agregarSiNoExiste(puntos, l4.getPunto2());
+    return puntos.getAll().size() == 4;
+}
+
+private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
+    for (Punto p : lista.getAll()) {
+        if (p.getX() == punto.getX() && p.getY() == punto.getY()) {
+            return;
+        }   
     }
+    lista.add(punto);
+}
 
-    private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
-        for (Punto p : lista.getAll()) {
-            if (p.getX() == punto.getX() && p.getY() == punto.getY()) {
-                return;
-            }   
-        }
-        lista.add(punto);
-    }
-
-    public PanelDePuntos(int filas, int columnas, JLabel labelturno){
-
-        this.labelTurno = labelturno;
+    public PanelDePuntos(int filas, int columnas){
 
 
         for (int i = 0; i<filas;i++){
             for (int j = 0; j<columnas; j++){
-                Punto punto = new Punto(i*100+5,j*100+5,i,j);
+                Punto punto = new Punto(i*100,j*100,i,j);
                 puntosTotales.add(punto);
             }
         }
 
+        
+
+    
+
         addMouseListener(new MouseAdapter(){
             public void mouseClicked(MouseEvent e){
-                if (!esMiTurno) {
-                    return; // Si no es el turno del cliente, no hacer nada
-                }
                 int x= e.getX();
                 int y= e.getY();
                 Punto puntoseleccionado = getPuntoCercano(x,y);
@@ -375,34 +309,45 @@ class PanelDePuntos extends JPanel{
                         if (puntosSeleccionados.size()==2){
                             Punto p1 = puntosSeleccionados.get(0);
                             Punto p2 = puntosSeleccionados.get(1);
-                            
+
+
+                            String coordenadas = p1.toString() + "-" + p2.toString();
+                            enviarCoordenadasServidor(coordenadas);
                             if(esLineaValida(p1,p2)){
                                 Linea linea = new Linea(p1,p2);
                                 lineasDibujadas.add(linea);
                                 verificarCuadrado(linea);
-                                enviarCoordenadasServidor(p1, p2);
                             }else{
                                 System.out.println("Solo se pueden hacer lineas verticales, horizontales y con un espacio de 100 entre punto");
 
                             }
                             puntosSeleccionados.clear();
                             repaint();
-                                   
-                        }  
+                                
+                            
+                            
+                        
+
+                            
+                        }
+                    
+                    
+                    
                 }
+
                 
             }
 
         });
     }
     private boolean esLineaValida(Punto p1, Punto p2) {
-        for (Linea linea : lineasDibujadas) {
-            if (linea.equals(new Linea(p1, p2))) {
-                return false;
-            }
+    for (Linea linea : lineasDibujadas) {
+        if (linea.equals(new Linea(p1, p2))) {
+            return false;
         }
-        return (p1.getX() == p2.getX() || p1.getY() == p2.getY()) && calcularDistancia(p1, p2) == 100;
     }
+    return (p1.getX() == p2.getX() || p1.getY() == p2.getY()) && calcularDistancia(p1, p2) == 100;
+}
 
     private double calcularDistancia(Punto p1, Punto p2){
         return Math.sqrt(Math.pow(p2.getX() - p1.getX(), 2) + Math.pow(p2.getY() - p1.getY(), 2));
@@ -422,6 +367,10 @@ class PanelDePuntos extends JPanel{
             }
             return puntoCercano;
         }
+        
+
+
+
 
     protected void paintComponent(Graphics g){
     super.paintComponent(g);
@@ -445,7 +394,7 @@ class PanelDePuntos extends JPanel{
         int[] xPoints = {p1.getX(), p2.getX(), p4.getX(), p3.getX()};
         int[] yPoints = {p1.getY(), p2.getY(), p4.getY(), p3.getY()};
 
-        g.setColor(Color.pink);
+        g.setColor(Color.RED);
         g.fillPolygon(xPoints, yPoints, 4);
     }
 
@@ -465,55 +414,24 @@ class PanelDePuntos extends JPanel{
     }
 
 //Función para enviar las coordenadas al servidor
-    private void enviarCoordenadasServidor(Punto p1, Punto p2) {
-        try {
-            JSONObject jsonObj = new JSONObject();
-            jsonObj.put("x1", p1.getX());
-            jsonObj.put("y1", p1.getY());
-            jsonObj.put("x2", p2.getX());
-            jsonObj.put("y2", p2.getY());
+    private void enviarCoordenadasServidor(String coordenadas){
+        try{
 
-            Socket socketclient = new Socket("localhost", 9991);
+            Socket socketclient = new Socket("localhost", 9991); // Cambia "localhost" por la dirección IP del servidor si es necesario
             DataOutputStream dos = new DataOutputStream(socketclient.getOutputStream());
-            dos.writeUTF(jsonObj.toString());
-            dos.flush();   // Asegúrate de que el mensaje se envíe antes de cerrar el socket.
+
+            JSONObject jsoncoordenadas = new JSONObject();
+            jsoncoordenadas.put("coordenadas",coordenadas);
+
+            String jsonstr = jsoncoordenadas.toString();
+
+
+            dos.writeUTF(jsonstr);
             dos.close();
             socketclient.close();
-        } catch (Exception e) {
+
+        } catch (Exception e){
             e.printStackTrace();
-        }
-        esMiTurno = false; // Luego de enviar coordenadas, ya no es el turno del cliente
-        actualizarLabelTurno();
-    }
-    public void asignarTurno() {
-        esMiTurno = true; // Asignar el turno al cliente
-        actualizarLabelTurno();
-    }
-    public void actualizarLabelTurno() {
-        SwingUtilities.invokeLater(() -> {
-            if (esMiTurno) {
-                labelTurno.setText("Tu turno!");
-                labelTurno.setForeground(Color.GREEN);
-            } else {
-                labelTurno.setText("Esperando turno...");
-                labelTurno.setForeground(Color.RED);
-            }
-        });
-    }
-
-    public void conectarPuntos(int x1, int y1, int x2, int y2) {
-        Punto punto1 = getPuntoCercano(x1, y1);
-        Punto punto2 = getPuntoCercano(x2, y2);
-
-        if (punto1 != null && punto2 != null) {
-            if (esLineaValida(punto1, punto2)) {
-                Linea linea = new Linea(punto1, punto2);
-                lineasDibujadas.add(linea);
-                verificarCuadrado(linea);
-                repaint();
-            } else {
-                System.out.println("Solo se pueden hacer lineas verticales, horizontales y con un espacio de 100 entre puntos");
-            }
         }
     }
 
@@ -579,75 +497,24 @@ class Linea {
     public boolean esAdyacente(Linea otra) {
         return this.punto1.equals(otra.punto1) || this.punto1.equals(otra.punto2) ||
                this.punto2.equals(otra.punto1) || this.punto2.equals(otra.punto2);
-    }
+}
 
-    public boolean esPerpendicular(Linea otra) {
-        if (this.punto1.getX() == this.punto2.getX()) { // Si esta línea es vertical
-            return otra.punto1.getY() == otra.punto2.getY(); // La otra debe ser horizontal
-        } else if (this.punto1.getY() == this.punto2.getY()) { // Si esta línea es horizontal
-            return otra.punto1.getX() == otra.punto2.getX(); // La otra debe ser vertical
-        }
-        return false;
+public boolean esPerpendicular(Linea otra) {
+    if (this.punto1.getX() == this.punto2.getX()) { // Si esta línea es vertical
+        return otra.punto1.getY() == otra.punto2.getY(); // La otra debe ser horizontal
+    } else if (this.punto1.getY() == this.punto2.getY()) { // Si esta línea es horizontal
+        return otra.punto1.getX() == otra.punto2.getX(); // La otra debe ser vertical
     }
-    public boolean equals(Object obj) {
+    return false;
+}
+public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         Linea linea = (Linea) obj;
         return (punto1.equals(linea.punto1) && punto2.equals(linea.punto2)) ||
-            (punto1.equals(linea.punto2) && punto2.equals(linea.punto1));
+               (punto1.equals(linea.punto2) && punto2.equals(linea.punto1));
     }
 }
-
-class ClienteThread extends Thread {
-    private Socket socket;
-    private PanelDePuntos panel;
-
-    public ClienteThread(PanelDePuntos panel) {
-        this.panel = panel;
-        try {
-            this.socket = new Socket("localhost", 9991);  // Dirección y puerto del servidor
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void run() {
-        try {
-            DataInputStream in = new DataInputStream(socket.getInputStream());
-
-            while (true) {
-                String mensaje = in.readUTF();
-                procesarMensaje(mensaje);
-            }
-
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
-    }
-private void procesarMensaje(String mensaje) {
-    if ("TU TURNO".equals(mensaje)) {
-        panel.asignarTurno();
-    } else if ("ESPERANDO TURNO".equals(mensaje)) {
-        panel.esMiTurno = false; // Asignar el turno al cliente
-        panel.actualizarLabelTurno();
-    } else {
-        try {
-            JSONObject jsonObj = new JSONObject(mensaje);
-            int x1 = jsonObj.getInt("x1");
-            int y1 = jsonObj.getInt("y1");
-            int x2 = jsonObj.getInt("x2");
-            int y2 = jsonObj.getInt("y2");
-
-            SwingUtilities.invokeLater(() -> {
-                panel.conectarPuntos(x1, y1, x2, y2);
-            });
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-}
-}
-
 
 
 class Nodo<T> {

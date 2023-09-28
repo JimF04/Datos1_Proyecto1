@@ -12,6 +12,8 @@ const int joystickYPin = A1;
 const int joystickButtonPin = 8;
 
 void setup() {
+    // Inicialización de comunicación serial
+    Serial.begin(9600);
     // Configurar pines de los botones
     pinMode(buttonAPin, INPUT_PULLUP);
     pinMode(buttonBPin, INPUT_PULLUP);
@@ -24,9 +26,6 @@ void setup() {
     pinMode(joystickXPin, INPUT);
     pinMode(joystickYPin, INPUT);
     pinMode(joystickButtonPin, INPUT_PULLUP);
-
-    // Inicialización de comunicación serial
-    Serial.begin(9600);
 }
 
 void loop() {
@@ -43,36 +42,57 @@ void loop() {
     int joystickYValue = analogRead(joystickYPin);
     bool joystickButton = !digitalRead(joystickButtonPin);
     
-    // Imprimir en Serial Monitor los valores leidos
-    Serial.print("Joystick X: ");
-    Serial.print(joystickXValue);
-    Serial.print("  Y: ");
-    Serial.print(joystickYValue);
-    Serial.print("  Button: ");
-    Serial.println(joystickButton);
+    // Acciones de los botones
+    if (buttonA){
+      Serial.write('A');
+      Serial.write('\n');
+      delay(200);
+    }
+    if (buttonB){
+      Serial.write('B');
+      Serial.write('\n');
+      delay(200);
+    }
+    if (buttonC){
+      Serial.write('C');
+      Serial.write('\n');
+      delay(200);
+    }
+    if (buttonD){
+      Serial.write('D');
+      Serial.write('\n');
+      delay(200);
+    }
+    if (buttonE){
+      Serial.write('E');
+      Serial.write('\n');
+      delay(200);
+    }
+    if (buttonF){
+      Serial.write('F');
+      Serial.write('\n');
+      delay(200);
+    }
 
-    // Imprimir si se han oprimido los botones
-    if (buttonA) {
-        Serial.println("Botón A oprimido");
+    // Acciones del Joystick
+    if (joystickYValue < 400){
+      Serial.write('K');
+      Serial.write('\n');
+      delay(100);
+    } 
+    else if (joystickYValue > 600){
+      Serial.write('I');
+      Serial.write('\n');
+      delay(100);
     }
-    if (buttonB) {
-        Serial.println("Botón B oprimido");
+    if (joystickXValue < 400){
+      Serial.write('J');
+      Serial.write('\n');
+      delay(100);
     }
-    if (buttonC) {
-        Serial.println("Botón C oprimido");
-    }
-    if (buttonD) {
-        Serial.println("Botón D oprimido");
-    }
-    if (buttonE) {
-        Serial.println("Botón E oprimido");
-    }
-    if (buttonF) {
-        Serial.println("Botón F oprimido");
-    }
-
-    // Acciónes de los botones
-    if (buttonA) {
-        // Acción para el botón A
+    else if (joystickXValue > 600){
+      Serial.write('L');
+      Serial.write('\n');
+      delay(100);
     }
 }
