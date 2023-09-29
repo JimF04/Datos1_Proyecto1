@@ -1,10 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -131,5 +129,67 @@ class ClientHandler extends Thread {
             }
             servidor.removeClientHandler(this);
         }
+    }
+}
+
+
+class Cola<T> {
+    private Nodo<T> head;
+    private Nodo<T> tail; // Necesitamos un nodo final para encolar de manera eficiente
+
+    public Cola() {
+        this.head = null;
+        this.tail = null;
+    }
+
+    // Encolar un nuevo elemento al final
+    public void enqueue(T data) {
+        Nodo<T> newNode = new Nodo<>(data);
+        if (head == null) {
+            head = newNode;
+            tail = newNode;
+            return;
+        }
+
+        tail.next = newNode;
+        tail = newNode;
+    }
+
+    // Desencolar el elemento del inicio
+    public T dequeue() {
+        if (head == null) {
+            return null; // La cola está vacía
+        }
+
+        T data = head.data;
+        head = head.next;
+        if (head == null) {
+            tail = null; // Si desencolamos el último elemento, también restablecemos la cola
+        }
+        return data;
+    }
+
+    // Ver el elemento del frente sin desencolar
+    public T peek() {
+        if (head == null) {
+            return null; // La cola está vacía
+        }
+        return head.data;
+    }
+
+    // Verificar si la cola está vacía
+    public boolean isEmpty() {
+        return head == null;
+    }
+
+    // Obtener todos los datos como una lista para facilitar el manejo
+    public List<T> getAll() {
+        List<T> list = new ArrayList<>();
+        Nodo<T> current = head;
+        while (current != null) {
+            list.add(current.data);
+            current = current.next;
+        }
+        return list;
     }
 }

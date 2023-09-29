@@ -1,3 +1,4 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -13,9 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.io.DataOutputStream;
 import java.net.Socket;
+import org.json.JSONException;
 import org.json.JSONObject;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 import java.io.DataInputStream;
 
 public class Interfaz {
@@ -142,8 +142,15 @@ class Ventana2 extends JFrame {
         gamebtn.setText("GAME");
         gamebtn.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                new Ventanagame();
-                dispose();
+                String jugador = areadenick.getText();
+                if (jugador.trim().isEmpty() || jugador.contains(" ")) {
+                    JOptionPane.showMessageDialog(Ventana2.this, "Sin espacios", "Error", JOptionPane.ERROR_MESSAGE);
+                } else if (jugador.contains(" ")){
+                    JOptionPane.showMessageDialog(Ventana2.this, "Está vacío!", "Error", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    Ventanagame ventanaGame = new Ventanagame(jugador);
+                    dispose();
+                }
             }
 
         });
@@ -229,14 +236,24 @@ class VentanaExtra extends JFrame {
 
 class Ventanagame extends JFrame{
 
-    public Ventanagame(){
-        setLayout(null);
+    private JLabel labelJugador;
+
+    public Ventanagame(String jugador){
+
+        setLayout(new BorderLayout());
         setSize(1000,675);
         setTitle("CONNECT THE DOTS");
         setResizable(false);
+
+        labelJugador = new JLabel("Jugador: " + jugador);
+        labelJugador.setFont(new Font("MV Boli", Font.PLAIN, 20));
+        labelJugador.setForeground(Color.BLACK); // O el color que prefieras
+        labelJugador.setBounds(10, 10, 300, 30); // Ajusta la posición y tamaño según lo necesites
+
+        add(labelJugador);
         
 
-        PanelDePuntos panelDePuntos = new PanelDePuntos(10, 10);
+        PanelDePuntos panelDePuntos = new PanelDePuntos(10, 8);
         panelDePuntos.setBounds(0, 0, 1200, 675);
 
         ClienteThread clienteThread = new ClienteThread(panelDePuntos);
@@ -249,7 +266,7 @@ class Ventanagame extends JFrame{
         //panelDePuntos.conectarPuntos(100, 100, 100, 200);
         //panelDePuntos.conectarPuntos(100, 200, 200, 200);
 
-        add(panelDePuntos);
+        add(panelDePuntos, BorderLayout.CENTER);
 
         setVisible(true);
 
@@ -349,9 +366,7 @@ class PanelDePuntos extends JPanel{
                             Punto p1 = puntosSeleccionados.get(0);
                             Punto p2 = puntosSeleccionados.get(1);
 
-
-                            String coordenadas = p1.toString() + p2.toString();
-                            enviarCoordenadasServidor(coordenadas);
+                            enviarCoordenadasServidor(p1, p2);
                             if(esLineaValida(p1,p2)){
                                 Linea linea = new Linea(p1,p2);
                                 lineasDibujadas.add(linea);
@@ -440,11 +455,17 @@ class PanelDePuntos extends JPanel{
     }
 
 //Función para enviar las coordenadas al servidor
-    private void enviarCoordenadasServidor(String coordenadas) {
+    private void enviarCoordenadasServidor(Punto p1, Punto p2) {
         try {
+            JSONObject jsonObj = new JSONObject();
+            jsonObj.put("x1", p1.getX());
+            jsonObj.put("y1", p1.getY());
+            jsonObj.put("x2", p2.getX());
+            jsonObj.put("y2", p2.getY());
+
             Socket socketclient = new Socket("localhost", 9991);
             DataOutputStream dos = new DataOutputStream(socketclient.getOutputStream());
-            dos.writeUTF(coordenadas);
+            dos.writeUTF(jsonObj.toString());
             dos.flush();   // Asegúrate de que el mensaje se envíe antes de cerrar el socket.
             dos.close();
             socketclient.close();
@@ -578,19 +599,18 @@ class ClienteThread extends Thread {
     }
 
     private void procesarMensaje(String mensaje) {
-        // Ahora el mensaje ya es simplemente "(x1, y1)(x2, y2)", así que lo procesamos directamente
-        Pattern pattern = Pattern.compile("\\((\\d+), (\\d+)\\)\\((\\d+), (\\d+)\\)");
-        Matcher matcher = pattern.matcher(mensaje);
-
-        if (matcher.find()) {
-            int x1 = Integer.parseInt(matcher.group(1));
-            int y1 = Integer.parseInt(matcher.group(2));
-            int x2 = Integer.parseInt(matcher.group(3));
-            int y2 = Integer.parseInt(matcher.group(4));
+        try {
+            JSONObject jsonObj = new JSONObject(mensaje);
+            int x1 = jsonObj.getInt("x1");
+            int y1 = jsonObj.getInt("y1");
+            int x2 = jsonObj.getInt("x2");
+            int y2 = jsonObj.getInt("y2");
 
             SwingUtilities.invokeLater(() -> {
                 panel.conectarPuntos(x1, y1, x2, y2);
             });
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 }
