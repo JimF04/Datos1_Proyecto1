@@ -240,8 +240,8 @@ class Ventanagame extends JFrame{
 
     public Ventanagame(String jugador){
 
-        setLayout(new BorderLayout());
-        setSize(1000,675);
+        setLayout(null);
+        setSize(1000,1000);
         setTitle("CONNECT THE DOTS");
         setResizable(false);
 
@@ -253,9 +253,9 @@ class Ventanagame extends JFrame{
         add(labelJugador);
         
 
-        PanelDePuntos panelDePuntos = new PanelDePuntos(10, 8);
-        panelDePuntos.setBounds(0, 0, 1200, 675);
-
+        PanelDePuntos panelDePuntos = new PanelDePuntos(8, 18);
+        panelDePuntos.setBounds(130, 100, 720, 720);
+        panelDePuntos.setBackground(Color.white);
         ClienteThread clienteThread = new ClienteThread(panelDePuntos);
         clienteThread.start();
 
@@ -350,7 +350,7 @@ class PanelDePuntos extends JPanel{
 
         for (int i = 0; i<filas;i++){
             for (int j = 0; j<columnas; j++){
-                Punto punto = new Punto(i*100,j*100,i,j);
+                Punto punto = new Punto(i*100+5,j*100+5,i,j);
                 puntosTotales.add(punto);
             }
         }
@@ -365,12 +365,12 @@ class PanelDePuntos extends JPanel{
                         if (puntosSeleccionados.size()==2){
                             Punto p1 = puntosSeleccionados.get(0);
                             Punto p2 = puntosSeleccionados.get(1);
-
-                            enviarCoordenadasServidor(p1, p2);
+                            
                             if(esLineaValida(p1,p2)){
                                 Linea linea = new Linea(p1,p2);
                                 lineasDibujadas.add(linea);
                                 verificarCuadrado(linea);
+                                enviarCoordenadasServidor(p1, p2);
                             }else{
                                 System.out.println("Solo se pueden hacer lineas verticales, horizontales y con un espacio de 100 entre punto");
 
@@ -435,7 +435,7 @@ class PanelDePuntos extends JPanel{
         int[] xPoints = {p1.getX(), p2.getX(), p4.getX(), p3.getX()};
         int[] yPoints = {p1.getY(), p2.getY(), p4.getY(), p3.getY()};
 
-        g.setColor(Color.RED);
+        g.setColor(Color.pink);
         g.fillPolygon(xPoints, yPoints, 4);
     }
 
