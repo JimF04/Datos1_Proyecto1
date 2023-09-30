@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.io.DataOutputStream;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class Servidor {
     private JTextArea areadetexto;
     private Cola<ClientHandler> colaDeTurnos = new Cola<>();
     private ClientHandler clienteActual = null;
-    private List<ClientHandler> clientHandlers = new ArrayList<>();
+    private LinkedList<ClientHandler> clientHandlers = new LinkedList<>();
 
 /**
  * Obtiene la lista de manejadores de clientes (ClientHandler) conectados al servidor.
