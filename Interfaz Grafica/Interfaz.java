@@ -77,17 +77,6 @@ public class Interfaz {
             }
         });
         milamina.add(infobtn);
-        JButton extraButton = new JButton();
-        extraButton.setBounds(525, 300, 150, 50); // Ajusta la posición y el tamaño según tus preferencias
-        extraButton.setText("LEADERBOARD");
-        extraButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                // Abre la nueva ventana aquí
-                new VentanaExtra();
-                frame.dispose(); // Cierra la ventana actual
-            }
-        });
-        milamina.add(extraButton);
 
         frame.setVisible(true);
 
@@ -211,32 +200,10 @@ class Ventana3 extends JFrame {
     }
 }
 
-class VentanaExtra extends JFrame {
-    public VentanaExtra() {
-        setTitle("LeaderBoard");
-        setSize(800, 600); // Ajusta el tamaño de la ventana según tus preferencias
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(null); // Ajusta el administrador de diseño según tus necesidades
-        setResizable(false);
-
-    JButton returnButton = new JButton();
-    returnButton.setBounds(20, 20, 100, 30); // Ajusta la posición y el tamaño según tus preferencias
-    returnButton.setText("Return");
-    returnButton.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            new Interfaz(); // Abre la interfaz principal
-            dispose(); // Cierra la ventana actual
-        }
-    });
-    add(returnButton);
-    
-    setVisible(true);
-    }
-}
-
 class Ventanagame extends JFrame{
 
     private JLabel labelJugador;
+    private JLabel labelTurno;
 
     public Ventanagame(String jugador){
 
@@ -251,20 +218,21 @@ class Ventanagame extends JFrame{
         labelJugador.setBounds(10, 10, 300, 30); // Ajusta la posición y tamaño según lo necesites
 
         add(labelJugador);
+
+        labelTurno = new JLabel("Esperando turno...");
+        labelTurno.setFont(new Font("MV Boli", Font.PLAIN, 20));
+        labelTurno.setForeground(Color.RED); // El color inicial es rojo, lo cambiaremos a verde cuando sea el turno del jugador
+        labelTurno.setBounds(600, 10, 300, 30);
+        add(labelTurno);
         
 
-        PanelDePuntos panelDePuntos = new PanelDePuntos(8,8);
+        PanelDePuntos panelDePuntos = new PanelDePuntos(4, 4,labelTurno);
         panelDePuntos.setBounds(130, 100, 720, 720);
         panelDePuntos.setBackground(Color.white);
         ClienteThread clienteThread = new ClienteThread(panelDePuntos);
         clienteThread.start();
 
-        //prueba de cuadrado
-
-        //panelDePuntos.conectarPuntos(100, 100, 200, 100);
-        //panelDePuntos.conectarPuntos(200, 100, 200, 200);
-        //panelDePuntos.conectarPuntos(100, 100, 100, 200);
-        //panelDePuntos.conectarPuntos(100, 200, 200, 200);
+        
 
         add(panelDePuntos, BorderLayout.CENTER);
 
@@ -279,10 +247,12 @@ class PanelDePuntos extends JPanel{
     private List<Punto> puntosSeleccionados = new ArrayList<>();
     private List<Linea> lineasDibujadas = new ArrayList<>();
     private ListaEnlazada<List<Punto>> cuadradosCompletados = new ListaEnlazada<>();
+    public boolean esMiTurno = false;
+    private JLabel labelTurno;
+    private ClienteThread clienteThread;
 
-    private int cuadradosCompletadosCount = 0;
-    private int totalCuadrados = 0;
-
+    private int totalCuadrados;
+    private int cuadradosCompletadosCount;
 
     private void verificarCuadrado(Linea nuevaLinea) {
         List<Linea> adyacentes = obtenerAdyacentes(nuevaLinea);
@@ -308,20 +278,19 @@ class PanelDePuntos extends JPanel{
                         if (cuadrado.getAll().size() == 4) {
                             cuadradosCompletados.add(cuadrado.getAll());
                             cuadradosCompletadosCount++;
-
                             if (cuadradosCompletadosCount == totalCuadrados) {
                                 // Aquí puedes mostrar un mensaje de finalización del juego
                                 JOptionPane.showMessageDialog(this, "¡Juego completado!");
                                 // Detener cualquier interacción adicional con puntos y líneas
                                 setEnabled(false);
                             }
-
                             return;
                         }
                     }
                 }
             }
         }
+        
     }
 
 
@@ -358,9 +327,13 @@ class PanelDePuntos extends JPanel{
         lista.add(punto);
     }
 
-    public PanelDePuntos(int filas, int columnas){
-        
-        this.totalCuadrados = (filas - 1) * (columnas - 1);
+    public PanelDePuntos(int filas, int columnas, JLabel labelturno){
+
+        this.labelTurno = labelturno;
+
+        totalCuadrados = (filas - 1) * (columnas - 1);
+        cuadradosCompletadosCount = 0;
+
 
         for (int i = 0; i<filas;i++){
             for (int j = 0; j<columnas; j++){
@@ -369,9 +342,11 @@ class PanelDePuntos extends JPanel{
             }
         }
 
-
         addMouseListener(new MouseAdapter(){
             public void mouseClicked(MouseEvent e){
+                if (!esMiTurno) {
+                    return; // Si no es el turno del cliente, no hacer nada
+                }
                 int x= e.getX();
                 int y= e.getY();
                 Punto puntoseleccionado = getPuntoCercano(x,y);
@@ -487,6 +462,23 @@ class PanelDePuntos extends JPanel{
         } catch (Exception e) {
             e.printStackTrace();
         }
+        esMiTurno = false; // Luego de enviar coordenadas, ya no es el turno del cliente
+        actualizarLabelTurno();
+    }
+    public void asignarTurno() {
+        esMiTurno = true; // Asignar el turno al cliente
+        actualizarLabelTurno();
+    }
+    public void actualizarLabelTurno() {
+        SwingUtilities.invokeLater(() -> {
+            if (esMiTurno) {
+                labelTurno.setText("Tu turno!");
+                labelTurno.setForeground(Color.GREEN);
+            } else {
+                labelTurno.setText("Esperando turno...");
+                labelTurno.setForeground(Color.RED);
+            }
+        });
     }
 
     public void conectarPuntos(int x1, int y1, int x2, int y2) {
@@ -612,8 +604,13 @@ class ClienteThread extends Thread {
             e.printStackTrace();
         }
     }
-
-    private void procesarMensaje(String mensaje) {
+private void procesarMensaje(String mensaje) {
+    if ("TU TURNO".equals(mensaje)) {
+        panel.asignarTurno();
+    } else if ("ESPERANDO TURNO".equals(mensaje)) {
+        panel.esMiTurno = false; // Asignar el turno al cliente
+        panel.actualizarLabelTurno();
+    } else {
         try {
             JSONObject jsonObj = new JSONObject(mensaje);
             int x1 = jsonObj.getInt("x1");
@@ -628,6 +625,7 @@ class ClienteThread extends Thread {
             e.printStackTrace();
         }
     }
+}
 }
 
 
