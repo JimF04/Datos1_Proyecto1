@@ -1,3 +1,4 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -13,9 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.io.DataOutputStream;
 import java.net.Socket;
-import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
-
+import java.io.DataInputStream;
 
 public class Interfaz {
 
@@ -50,8 +51,8 @@ public class Interfaz {
         milamina.setBackground(Color.darkGray);
         frame.add(milamina);
 
-        JLabel label = new JLabel(" CONNECT DOTS    ");
-        label.setBounds(490,15,350,30);
+        JLabel label = new JLabel("WELCOME TO THE GAME");
+        label.setBounds(450,10,350,30);
         label.setFont(new Font("MV Boli",Font.PLAIN,25));
         label.setForeground(Color.white);
         milamina.add(label); 
@@ -76,21 +77,21 @@ public class Interfaz {
             }
         });
         milamina.add(infobtn);
-
         JButton extraButton = new JButton();
         extraButton.setBounds(525, 300, 150, 50); // Ajusta la posición y el tamaño según tus preferencias
         extraButton.setText("LEADERBOARD");
         extraButton.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-        // Abre la nueva ventana aquí
-        new VentanaExtra();
-        frame.dispose(); // Cierra la ventana actual
-    }
-});
-milamina.add(extraButton);
-
+                public void actionPerformed(ActionEvent e) {
+                // Abre la nueva ventana aquí
+                new VentanaExtra();
+                frame.dispose(); // Cierra la ventana actual
+            }
+        });
+        milamina.add(extraButton);
 
         frame.setVisible(true);
+
+
     }
 
     public static void main(String[] args) {
@@ -141,8 +142,15 @@ class Ventana2 extends JFrame {
         gamebtn.setText("GAME");
         gamebtn.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                new Ventanagame();
-                dispose();
+                String jugador = areadenick.getText();
+                if (jugador.trim().isEmpty() || jugador.contains(" ")) {
+                    JOptionPane.showMessageDialog(Ventana2.this, "Sin espacios", "Error", JOptionPane.ERROR_MESSAGE);
+                } else if (jugador.contains(" ")){
+                    JOptionPane.showMessageDialog(Ventana2.this, "Está vacío!", "Error", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    Ventanagame ventanaGame = new Ventanagame(jugador);
+                    dispose();
+                }
             }
 
         });
@@ -215,59 +223,75 @@ class VentanaExtra extends JFrame {
     returnButton.setBounds(20, 20, 100, 30); // Ajusta la posición y el tamaño según tus preferencias
     returnButton.setText("Return");
     returnButton.addActionListener(new ActionListener() {
-    public void actionPerformed(ActionEvent e) {
-        new Interfaz(); // Abre la interfaz principal
-        dispose(); // Cierra la ventana actual
-    }
-});
-add(returnButton);
-
-        
-        setVisible(true);
+        public void actionPerformed(ActionEvent e) {
+            new Interfaz(); // Abre la interfaz principal
+            dispose(); // Cierra la ventana actual
+        }
+    });
+    add(returnButton);
+    
+    setVisible(true);
     }
 }
 
+class Ventanagame extends JFrame {
 
-class Ventanagame extends JFrame{
+    private JLabel labelJugador;
+    private int jugadorScore = 0;
+    private JLabel labelPuntuacion;
 
-    public Ventanagame(){
+    public Ventanagame(String jugador) {
+
         setLayout(null);
-        setSize(1000,675);
+        setSize(1000, 1000);
         setTitle("CONNECT THE DOTS");
         setResizable(false);
-        
 
-        PanelDePuntos panelDePuntos = new PanelDePuntos(10, 10);
-        panelDePuntos.setBounds(0, 0, 1200, 675);
+        labelJugador = new JLabel("Jugador: " + jugador);
+        labelJugador.setFont(new Font("MV Boli", Font.PLAIN, 20));
+        labelJugador.setForeground(Color.BLACK);
+        labelJugador.setBounds(10, 10, 300, 30);
+        add(labelJugador);
 
-        add(panelDePuntos);
+        labelPuntuacion = new JLabel("Puntuación: " + jugadorScore);
+        labelPuntuacion.setFont(new Font("MV Boli", Font.PLAIN, 20));
+        labelPuntuacion.setForeground(Color.BLACK);
+        labelPuntuacion.setBounds(320, 10, 200, 30);
+        add(labelPuntuacion);
+
+        PanelDePuntos panelDePuntos = new PanelDePuntos(8, 18, this);
+        panelDePuntos.setBounds(130, 100, 720, 720);
+        panelDePuntos.setBackground(Color.white);
+        ClienteThread clienteThread = new ClienteThread(panelDePuntos);
+        clienteThread.start();
+
+        add(panelDePuntos, BorderLayout.CENTER);
 
         setVisible(true);
-
     }
 
+    public void sumarPuntuacion(int puntos) {
+        jugadorScore += puntos;
+        labelPuntuacion.setText("Puntuación: " + jugadorScore);
+    }
 }
 
-class PanelDePuntos extends JPanel{
+class PanelDePuntos extends JPanel {
     private ListaEnlazada<Punto> puntosTotales = new ListaEnlazada<>();
     private List<Punto> puntosSeleccionados = new ArrayList<>();
     private List<Linea> lineasDibujadas = new ArrayList<>();
     private ListaEnlazada<List<Punto>> cuadradosCompletados = new ListaEnlazada<>();
-
-
-    
+    private Ventanagame ventanaGame;
 
     private void verificarCuadrado(Linea nuevaLinea) {
         List<Linea> adyacentes = obtenerAdyacentes(nuevaLinea);
         for (Linea linea1 : adyacentes) {
             for (Linea linea2 : obtenerAdyacentes(linea1)) {
                 for (Linea linea3 : obtenerAdyacentes(linea2)) {
-                    // Verificar que las líneas son distintas
                     if (linea1.equals(nuevaLinea) || linea2.equals(nuevaLinea) || linea3.equals(nuevaLinea)
-                        || linea1.equals(linea2) || linea1.equals(linea3) || linea2.equals(linea3)) {
+                            || linea1.equals(linea2) || linea1.equals(linea3) || linea2.equals(linea3)) {
                         continue;
                     }
-                    // Verificar que las líneas forman un cuadrado
                     if (formaCuadrado(nuevaLinea, linea1, linea2, linea3)) {
                         ListaEnlazada<Punto> cuadrado = new ListaEnlazada<>();
                         agregarSiNoExiste(cuadrado, nuevaLinea.getPunto1());
@@ -280,6 +304,7 @@ class PanelDePuntos extends JPanel{
                         agregarSiNoExiste(cuadrado, linea3.getPunto2());
                         if (cuadrado.getAll().size() == 4) {
                             cuadradosCompletados.add(cuadrado.getAll());
+                            ventanaGame.sumarPuntuacion(10);
                             return;
                         }
                     }
@@ -288,53 +313,49 @@ class PanelDePuntos extends JPanel{
         }
     }
 
+    
 
-
-private List<Linea> obtenerAdyacentes(Linea linea) {
-    List<Linea> adyacentes = new ArrayList<>();
-    for(Linea l : lineasDibujadas) {
-        if(l.esAdyacente(linea) && !l.equals(linea)) {
-            adyacentes.add(l);
+    private List<Linea> obtenerAdyacentes(Linea linea) {
+        List<Linea> adyacentes = new ArrayList<>();
+        for(Linea l : lineasDibujadas) {
+            if(l.esAdyacente(linea) && !l.equals(linea)) {
+                adyacentes.add(l);
+            }
         }
+        return adyacentes;
     }
-    return adyacentes;
-}
-        
+            
     private boolean formaCuadrado(Linea l1, Linea l2, Linea l3, Linea l4) {
-    ListaEnlazada<Punto> puntos = new ListaEnlazada<>();
-    agregarSiNoExiste(puntos, l1.getPunto1());
-    agregarSiNoExiste(puntos, l1.getPunto2());
-    agregarSiNoExiste(puntos, l2.getPunto1());
-    agregarSiNoExiste(puntos, l2.getPunto2());
-    agregarSiNoExiste(puntos, l3.getPunto1());
-    agregarSiNoExiste(puntos, l3.getPunto2());
-    agregarSiNoExiste(puntos, l4.getPunto1());
-    agregarSiNoExiste(puntos, l4.getPunto2());
-    return puntos.getAll().size() == 4;
-}
-
-private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
-    for (Punto p : lista.getAll()) {
-        if (p.getX() == punto.getX() && p.getY() == punto.getY()) {
-            return;
-        }   
+        ListaEnlazada<Punto> puntos = new ListaEnlazada<>();
+        agregarSiNoExiste(puntos, l1.getPunto1());
+        agregarSiNoExiste(puntos, l1.getPunto2());
+        agregarSiNoExiste(puntos, l2.getPunto1());
+        agregarSiNoExiste(puntos, l2.getPunto2());
+        agregarSiNoExiste(puntos, l3.getPunto1());
+        agregarSiNoExiste(puntos, l3.getPunto2());
+        agregarSiNoExiste(puntos, l4.getPunto1());
+        agregarSiNoExiste(puntos, l4.getPunto2());
+        return puntos.getAll().size() == 4;
     }
-    lista.add(punto);
-}
 
-    public PanelDePuntos(int filas, int columnas){
+    private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
+        for (Punto p : lista.getAll()) {
+            if (p.getX() == punto.getX() && p.getY() == punto.getY()) {
+                return;
+            }   
+        }
+        lista.add(punto);
+    }
 
+    public PanelDePuntos(int filas, int columnas, Ventanagame ventanagame) {
+        this.ventanaGame = ventanagame;
 
         for (int i = 0; i<filas;i++){
             for (int j = 0; j<columnas; j++){
-                Punto punto = new Punto(i*100,j*100,i,j);
+                Punto punto = new Punto(i*100+5,j*100+5,i,j);
                 puntosTotales.add(punto);
             }
         }
-
-        
-
-    
 
         addMouseListener(new MouseAdapter(){
             public void mouseClicked(MouseEvent e){
@@ -346,45 +367,34 @@ private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
                         if (puntosSeleccionados.size()==2){
                             Punto p1 = puntosSeleccionados.get(0);
                             Punto p2 = puntosSeleccionados.get(1);
-
-
-                            String coordenadas = p1.toString() + "-" + p2.toString();
-                            enviarCoordenadasServidor(coordenadas);
+                            
                             if(esLineaValida(p1,p2)){
                                 Linea linea = new Linea(p1,p2);
                                 lineasDibujadas.add(linea);
                                 verificarCuadrado(linea);
+                                enviarCoordenadasServidor(p1, p2);
                             }else{
                                 System.out.println("Solo se pueden hacer lineas verticales, horizontales y con un espacio de 100 entre punto");
 
                             }
                             puntosSeleccionados.clear();
                             repaint();
-                                
-                            
-                            
-                        
-
-                            
-                        }
-                    
-                    
-                    
+                                   
+                        }  
                 }
-
                 
             }
 
         });
     }
     private boolean esLineaValida(Punto p1, Punto p2) {
-    for (Linea linea : lineasDibujadas) {
-        if (linea.equals(new Linea(p1, p2))) {
-            return false;
+        for (Linea linea : lineasDibujadas) {
+            if (linea.equals(new Linea(p1, p2))) {
+                return false;
+            }
         }
+        return (p1.getX() == p2.getX() || p1.getY() == p2.getY()) && calcularDistancia(p1, p2) == 100;
     }
-    return (p1.getX() == p2.getX() || p1.getY() == p2.getY()) && calcularDistancia(p1, p2) == 100;
-}
 
     private double calcularDistancia(Punto p1, Punto p2){
         return Math.sqrt(Math.pow(p2.getX() - p1.getX(), 2) + Math.pow(p2.getY() - p1.getY(), 2));
@@ -395,7 +405,7 @@ private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
         double distanciaMinima = Double.MAX_VALUE;
         for(Punto punto : puntosTotales.getAll()){
                 double distancia = Math.sqrt(Math.pow(punto.getX() - x, 2) + Math.pow(punto.getY() - y,2));
-                if (distancia<20 && distancia<distanciaMinima){
+                if (distancia<35 && distancia<distanciaMinima){
                         distanciaMinima=distancia;
                         puntoCercano = punto;
                     
@@ -404,10 +414,6 @@ private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
             }
             return puntoCercano;
         }
-        
-
-
-
 
     protected void paintComponent(Graphics g){
     super.paintComponent(g);
@@ -431,7 +437,7 @@ private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
         int[] xPoints = {p1.getX(), p2.getX(), p4.getX(), p3.getX()};
         int[] yPoints = {p1.getY(), p2.getY(), p4.getY(), p3.getY()};
 
-        g.setColor(Color.RED);
+        g.setColor(Color.pink);
         g.fillPolygon(xPoints, yPoints, 4);
     }
 
@@ -450,23 +456,41 @@ private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
 
     }
 
+//Función para enviar las coordenadas al servidor
+    private void enviarCoordenadasServidor(Punto p1, Punto p2) {
+        try {
+            JSONObject jsonObj = new JSONObject();
+            jsonObj.put("x1", p1.getX());
+            jsonObj.put("y1", p1.getY());
+            jsonObj.put("x2", p2.getX());
+            jsonObj.put("y2", p2.getY());
 
-  private void enviarCoordenadasServidor(String coordenadas) {
-    try {
-        JSONObject json = new JSONObject();
-        json.put("coordenadas", coordenadas);
-
-        // Crear un cliente socket y enviar el JSON al servidor
-        Socket socketclient = new Socket("localhost", 9991); // Cambia "localhost" por la dirección IP del servidor si es necesario
-        DataOutputStream dos = new DataOutputStream(socketclient.getOutputStream());
-        dos.writeUTF(json.toString());
-        dos.close();
-        socketclient.close();
-    } catch (Exception e) {
-        e.printStackTrace();
+            Socket socketclient = new Socket("localhost", 9991);
+            DataOutputStream dos = new DataOutputStream(socketclient.getOutputStream());
+            dos.writeUTF(jsonObj.toString());
+            dos.flush();   // Asegúrate de que el mensaje se envíe antes de cerrar el socket.
+            dos.close();
+            socketclient.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-}
 
+    public void conectarPuntos(int x1, int y1, int x2, int y2) {
+        Punto punto1 = getPuntoCercano(x1, y1);
+        Punto punto2 = getPuntoCercano(x2, y2);
+
+        if (punto1 != null && punto2 != null) {
+            if (esLineaValida(punto1, punto2)) {
+                Linea linea = new Linea(punto1, punto2);
+                lineasDibujadas.add(linea);
+                verificarCuadrado(linea);
+                repaint();
+            } else {
+                System.out.println("Solo se pueden hacer lineas verticales, horizontales y con un espacio de 100 entre puntos");
+            }
+        }
+    }
 
 
 }
@@ -530,24 +554,69 @@ class Linea {
     public boolean esAdyacente(Linea otra) {
         return this.punto1.equals(otra.punto1) || this.punto1.equals(otra.punto2) ||
                this.punto2.equals(otra.punto1) || this.punto2.equals(otra.punto2);
-}
-
-public boolean esPerpendicular(Linea otra) {
-    if (this.punto1.getX() == this.punto2.getX()) { // Si esta línea es vertical
-        return otra.punto1.getY() == otra.punto2.getY(); // La otra debe ser horizontal
-    } else if (this.punto1.getY() == this.punto2.getY()) { // Si esta línea es horizontal
-        return otra.punto1.getX() == otra.punto2.getX(); // La otra debe ser vertical
     }
-    return false;
-}
-public boolean equals(Object obj) {
+
+    public boolean esPerpendicular(Linea otra) {
+        if (this.punto1.getX() == this.punto2.getX()) { // Si esta línea es vertical
+            return otra.punto1.getY() == otra.punto2.getY(); // La otra debe ser horizontal
+        } else if (this.punto1.getY() == this.punto2.getY()) { // Si esta línea es horizontal
+            return otra.punto1.getX() == otra.punto2.getX(); // La otra debe ser vertical
+        }
+        return false;
+    }
+    public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         Linea linea = (Linea) obj;
         return (punto1.equals(linea.punto1) && punto2.equals(linea.punto2)) ||
-               (punto1.equals(linea.punto2) && punto2.equals(linea.punto1));
+            (punto1.equals(linea.punto2) && punto2.equals(linea.punto1));
     }
 }
+
+class ClienteThread extends Thread {
+    private Socket socket;
+    private PanelDePuntos panel;
+
+    public ClienteThread(PanelDePuntos panel) {
+        this.panel = panel;
+        try {
+            this.socket = new Socket("localhost", 9991);  // Dirección y puerto del servidor
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void run() {
+        try {
+            DataInputStream in = new DataInputStream(socket.getInputStream());
+
+            while (true) {
+                String mensaje = in.readUTF();
+                procesarMensaje(mensaje);
+            }
+
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void procesarMensaje(String mensaje) {
+        try {
+            JSONObject jsonObj = new JSONObject(mensaje);
+            int x1 = jsonObj.getInt("x1");
+            int y1 = jsonObj.getInt("y1");
+            int x2 = jsonObj.getInt("x2");
+            int y2 = jsonObj.getInt("y2");
+
+            SwingUtilities.invokeLater(() -> {
+                panel.conectarPuntos(x1, y1, x2, y2);
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
 
 
 class Nodo<T> {
