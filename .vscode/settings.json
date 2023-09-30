@@ -1,0 +1,6 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "/Users/jimf1727/Desktop/org.json-chargebee-1.0.jar"
+    ]
+}
