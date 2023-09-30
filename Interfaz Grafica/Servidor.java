@@ -19,19 +19,19 @@ public class Servidor {
     private ClientHandler clienteActual = null;
     private List<ClientHandler> clientHandlers = new ArrayList<>();
 
-    /**
-     * Obtiene la lista de manejadores de clientes (ClientHandler) conectados al servidor.
-     *
-     * @return La lista de ClientHandler conectados al servidor.
-     */    
+/**
+ * Obtiene la lista de manejadores de clientes (ClientHandler) conectados al servidor.
+ *
+ * @return La lista de ClientHandler conectados al servidor.
+ */    
     public List<ClientHandler> getClientHandlers() {
         return clientHandlers;
     }
 
 
-    /**
-     * Constructor de la clase Servidor. Inicializa la interfaz gráfica del servidor.
-     */    
+/**
+ * Constructor de la clase Servidor. Inicializa la interfaz gráfica del servidor.
+ */    
     public Servidor() {
         JFrame canal = new JFrame();
         canal.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); // Cambiamos la operación de cierre por defecto
@@ -65,20 +65,20 @@ public class Servidor {
         canal.setVisible(true);
     }
 
-    /**
-     * Agrega un mensaje al área de texto de la interfaz gráfica del servidor.
-     *
-     * @param message El mensaje que se va a agregar.
-     */    
+/**
+ * Agrega un mensaje al área de texto de la interfaz gráfica del servidor.
+ *
+ * @param message El mensaje que se va a agregar.
+ */    
     public void appendMessage(String message) {
         SwingUtilities.invokeLater(() -> {
             areadetexto.append(message + "\n");
         });
     }
 
-    /**
-     * Indica que es el turno del servidor para enviar mensajes.
-     */
+/**
+ * Indica que es el turno del servidor para enviar mensajes.
+ */
     
     public synchronized void serverTurn() {
         SwingUtilities.invokeLater(() -> {
@@ -87,9 +87,9 @@ public class Servidor {
         });
     }
 
-    /**
-     * Pasa al siguiente turno de cliente.
-     */    
+/**
+ * Pasa al siguiente turno de cliente.
+ */    
     public synchronized void nextTurn() {
         if(clienteActual == null) {
             serverTurn(); // Si no hay cliente actual, es el turno del servidor
@@ -99,12 +99,12 @@ public class Servidor {
             clientHandlers.add(clienteActual);
         }
     }
-    
-    /**
-     * Método principal del servidor. Inicia el servidor y acepta conexiones entrantes de clientes.
-     *
-     * @param args Los argumentos de la línea de comandos (no se utilizan).
-     */
+
+/**
+ * Método principal del servidor. Inicia el servidor y acepta conexiones entrantes de clientes.
+ *
+ * @param args Los argumentos de la línea de comandos (no se utilizan).
+ */
     public static void main(String args[]) {
         SwingUtilities.invokeLater(() -> {
             Servidor servidor = new Servidor();
@@ -125,11 +125,11 @@ public class Servidor {
         });
     }
     
-    /**
-     * Agrega un manejador de cliente (ClientHandler) a la lista de clientes conectados.
-     *
-     * @param handler El manejador de cliente que se va a agregar.
-     */
+/**
+ * Agrega un manejador de cliente (ClientHandler) a la lista de clientes conectados.
+ *
+ * @param handler El manejador de cliente que se va a agregar.
+ */
     public synchronized void addClientHandler(ClientHandler handler) {
         clientHandlers.add(handler);
         colaDeTurnos.enqueue(handler);
@@ -139,31 +139,31 @@ public class Servidor {
         }
     }
 
-    /**
-     * Elimina un manejador de cliente (ClientHandler) de la lista de clientes conectados.
-     *
-     * @param handler El manejador de cliente que se va a eliminar.
-     */    
+/**
+ * Elimina un manejador de cliente (ClientHandler) de la lista de clientes conectados.
+ *
+ * @param handler El manejador de cliente que se va a eliminar.
+ */    
     public synchronized void removeClientHandler(ClientHandler handler) {
         clientHandlers.remove(handler);
     }
 
-    /**
-     * Envía un mensaje a todos los clientes conectados.
-     *
-     * @param message El mensaje que se va a enviar.
-     */    
+/**
+ * Envía un mensaje a todos los clientes conectados.
+ *
+ * @param message El mensaje que se va a enviar.
+ */    
     public synchronized void sendToAll(String message) {
         for(ClientHandler handler : clientHandlers) {
             handler.sendMessage(message);
         }
     }
 
-    /**
-     * Indica que un cliente ha finalizado su turno y gestiona el siguiente turno si es necesario.
-     *
-     * @param handler El manejador de cliente que ha finalizado su turno.
-     */    
+/**
+ * Indica que un cliente ha finalizado su turno y gestiona el siguiente turno si es necesario.
+ *
+ * @param handler El manejador de cliente que ha finalizado su turno.
+ */    
     public synchronized void clientFinished(ClientHandler handler) {
         if (clienteActual == handler) {
             colaDeTurnos.dequeue(); // Quita al cliente actual de la cola
@@ -177,11 +177,11 @@ public class Servidor {
         }
     }
 
-    /**
-     * Pide el turno para un cliente específico y lo agrega a la cola de turnos.
-     *
-     * @param cliente El manejador de cliente que solicita el turno.
-     */    
+/**
+ * Pide el turno para un cliente específico y lo agrega a la cola de turnos.
+ *
+ * @param cliente El manejador de cliente que solicita el turno.
+ */    
     public synchronized void pedirTurno(ClientHandler cliente) {
         colaDeTurnos.enqueue(cliente);
         // Si solo hay un cliente en la cola, le damos el turno
@@ -190,12 +190,12 @@ public class Servidor {
         }
     }
 
-    /**
-     * Envía un mensaje a todos los clientes conectados excepto al remitente especificado.
-     *
-     * @param message El mensaje que se va a enviar.
-     * @param sender  El manejador de cliente que envía el mensaje.
-     */    
+/**
+ * Envía un mensaje a todos los clientes conectados excepto al remitente especificado.
+ *
+ * @param message El mensaje que se va a enviar.
+ * @param sender  El manejador de cliente que envía el mensaje.
+ */    
     public synchronized void sendToAllExcept(String message, ClientHandler sender) {
         for(ClientHandler handler : clientHandlers) {
             if (handler != sender) {
@@ -204,11 +204,11 @@ public class Servidor {
         }
     }
 
-    /**
-     * Finaliza el turno de un cliente específico.
-     *
-     * @param cliente El manejador de cliente cuyo turno se va a finalizar.
-     */    
+/**
+ * Finaliza el turno de un cliente específico.
+ *
+ * @param cliente El manejador de cliente cuyo turno se va a finalizar.
+ */    
     public synchronized void finalizarTurno(ClientHandler cliente) {
     if (colaDeTurnos.peek() == cliente) {
         colaDeTurnos.dequeue();
@@ -235,12 +235,12 @@ class ClientHandler extends Thread {
     private DataOutputStream out;
     private boolean tieneTurno = false;
     
-    /**
-     * Constructor de la clase ClientHandler.
-     *
-     * @param socket   El socket de comunicación con el cliente.
-     * @param servidor La instancia del servidor al que está conectado el cliente.
-     */    
+/**
+ * Constructor de la clase ClientHandler.
+ *
+ * @param socket   El socket de comunicación con el cliente.
+ * @param servidor La instancia del servidor al que está conectado el cliente.
+ */    
     public ClientHandler(Socket socket, Servidor servidor) {
         this.socket = socket;
         this.servidor = servidor;
@@ -251,11 +251,11 @@ class ClientHandler extends Thread {
         }
     }
 
-    /**
-     * Envía un mensaje al cliente actual.
-     *
-     * @param msg El mensaje que se va a enviar al cliente.
-     */    
+/**
+ * Envía un mensaje al cliente actual.
+ *
+ * @param msg El mensaje que se va a enviar al cliente.
+ */    
     public void sendMessage(String msg) {
     try {
         out.writeUTF(msg);
@@ -263,16 +263,16 @@ class ClientHandler extends Thread {
         e.printStackTrace();
     }
 }
-    /**
-     * Asigna el turno al cliente actual.
-     */
+/**
+ * Asigna el turno al cliente actual.
+ */
      public void asignarTurno() {
         sendMessage("TU TURNO");
     }
 
-    /**
-     * Ejecuta el hilo del cliente para recibir y procesar mensajes.
-     */    
+/**
+ * Ejecuta el hilo del cliente para recibir y procesar mensajes.
+ */    
     public void run() {
     try {
         DataInputStream in = new DataInputStream(socket.getInputStream());
@@ -317,19 +317,19 @@ class Cola<T> {
     private Nodo<T> head;
     private Nodo<T> tail; // Necesitamos un nodo final para encolar de manera eficiente
 
-    /**
-     * Constructor de la clase Cola. Inicializa una cola vacía.
-     */    
+/**
+ * Constructor de la clase Cola. Inicializa una cola vacía.
+ */    
     public Cola() {
         this.head = null;
         this.tail = null;
     }
 
-    /**
-     * Encola un nuevo elemento al final de la cola.
-     *
-     * @param data El elemento que se va a encolar.
-     */
+/**
+ * Encola un nuevo elemento al final de la cola.
+ *
+ * @param data El elemento que se va a encolar.
+ */
     public void enqueue(T data) {
         Nodo<T> newNode = new Nodo<>(data);
         if (head == null) {
@@ -342,11 +342,11 @@ class Cola<T> {
         tail = newNode;
     }
 
-    /**
-     * Desencola el elemento del frente de la cola.
-     *
-     * @return El elemento desencolado o `null` si la cola está vacía.
-     */
+/**
+ * Desencola el elemento del frente de la cola.
+ *
+ * @return El elemento desencolado o `null` si la cola está vacía.
+ */
     public T dequeue() {
         if (head == null) {
             return null; // La cola está vacía
@@ -360,11 +360,11 @@ class Cola<T> {
         return data;
     }
 
-    /**
-     * Obtiene el elemento del frente de la cola sin desencolarlo.
-     *
-     * @return El elemento del frente de la cola o `null` si la cola está vacía.
-     */
+/**
+ * Obtiene el elemento del frente de la cola sin desencolarlo.
+ *
+ * @return El elemento del frente de la cola o `null` si la cola está vacía.
+ */
     public T peek() {
         if (head == null) {
             return null; // La cola está vacía
@@ -372,19 +372,19 @@ class Cola<T> {
         return head.data;
     }
 
-    /**
-     * Verifica si la cola está vacía.
-     *
-     * @return `true` si la cola está vacía, `false` de lo contrario.
-     */
+/**
+ * Verifica si la cola está vacía.
+ *
+ * @return `true` si la cola está vacía, `false` de lo contrario.
+ */
     public boolean isEmpty() {
         return head == null;
     }
-    /**
-     * Obtiene todos los elementos de la cola como una lista para facilitar el manejo.
-     *
-     * @return Una lista que contiene todos los elementos de la cola.
-     */
+/**
+ * Obtiene todos los elementos de la cola como una lista para facilitar el manejo.
+ *
+ * @return Una lista que contiene todos los elementos de la cola.
+ */
     public List<T> getAll() {
         List<T> list = new ArrayList<>();
         Nodo<T> current = head;
@@ -395,11 +395,11 @@ class Cola<T> {
         return list;
     }
 
-    /**
-     * Clase interna que representa un nodo en la cola.
-     *
-     * @param <T> El tipo de datos almacenado en el nodo.
-     */
+/**
+ * Clase interna que representa un nodo en la cola.
+ *
+ * @param <T> El tipo de datos almacenado en el nodo.
+ */
     private static class Nodo<T> {
         T data;
         Nodo<T> next;
@@ -409,11 +409,11 @@ class Cola<T> {
             this.next = null;
         }
     }
-    /**
-     * Obtiene el tamaño actual de la cola.
-     *
-     * @return El número de elementos en la cola.
-     */
+/**
+ * Obtiene el tamaño actual de la cola.
+ *
+ * @return El número de elementos en la cola.
+ */
     public int size() {
         int count = 0;
         Nodo<T> current = head;

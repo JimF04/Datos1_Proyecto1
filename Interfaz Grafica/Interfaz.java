@@ -1,22 +1,20 @@
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import javax.swing.*;
-import javax.imageio.ImageIO;
-import java.io.IOException;
-import java.awt.event.MouseAdapter;
-import java.util.ArrayList;
-import java.util.List;
-import java.io.DataOutputStream;
-import java.net.Socket;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Esta clase representa la interfaz principal del juego "Connect the Dots".
@@ -26,9 +24,9 @@ public class Interfaz {
 
     private BufferedImage backgroundImage;
 
-    /**
-     * Constructor de la clase Interfaz. Carga la imagen de fondo y configura la interfaz principal.
-     */
+/**
+* Constructor de la clase Interfaz. Carga la imagen de fondo y configura la interfaz principal.
+*/
     public Interfaz(){
         
         try {
@@ -89,23 +87,24 @@ public class Interfaz {
 
 
     }
-    /**
-     * Método principal para iniciar la aplicación.
-     *
-     * @param args Los argumentos de línea de comandos (no utilizados en este caso).
-     */
+
+/**
+ * Método principal para iniciar la aplicación.
+ * @param args Los argumentos de línea de comandos (no utilizados en este caso).
+ */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new Interfaz());
     }
 }
+
 /**
  * Clase que representa la segunda ventana de la aplicación "Connect the Dots".
  * Permite a los usuarios ingresar su nombre de usuario y comenzar el juego.
  */
 class Ventana2 extends JFrame {
-    /**
-     * Constructor de la clase Ventana2. Configura la interfaz de la segunda ventana.
-     */
+/**
+ * Constructor de la clase Ventana2. Configura la interfaz de la segunda ventana.
+ */
     public Ventana2(){
         setTitle("Connect the dots");
         setSize(1200,675);
@@ -174,9 +173,9 @@ class Ventana2 extends JFrame {
 class Ventana3 extends JFrame {
     private BufferedImage backgroundImage;
 
-    /**
-     * Constructor de la clase Ventana3. Configura la interfaz de la tercera ventana.
-     */
+/**
+ * Constructor de la clase Ventana3. Configura la interfaz de la tercera ventana.
+ */
     public Ventana3() {
         setLayout(null);
         setTitle("Informacion");
@@ -215,16 +214,17 @@ class Ventana3 extends JFrame {
 
         setVisible(true);
     }
-    /**
-     * Método principal que crea una instancia de la tercera ventana.
-     * @param args Los argumentos de la línea de comandos (no se utilizan en este caso).
-     */
+/**
+ * Método principal que crea una instancia de la tercera ventana.
+ * @param args Los argumentos de la línea de comandos (no se utilizan en este caso).
+ */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             new Ventana3();
         });
     }
 }
+
 /**
  * Clase que representa la ventana del juego "Connect the Dots".
  * Muestra el nombre del jugador, el estado del turno y un panel de juego.
@@ -235,10 +235,10 @@ class Ventanagame extends JFrame{
     private JLabel labelTurno;
     private String nombreJugador;
 
-    /**
-     * Constructor de la clase Ventanagame. Configura la interfaz de la ventana del juego.
-     * @param jugador El nombre del jugador que se mostrará en la ventana.
-     */
+/**
+ * Constructor de la clase Ventanagame. Configura la interfaz de la ventana del juego.
+ * @param jugador El nombre del jugador que se mostrará en la ventana.
+ */
     public Ventanagame(String jugador){
         this.nombreJugador = jugador;
 
@@ -296,11 +296,11 @@ class PanelDePuntos extends JPanel{
     private int cuadradosCompletadosCount;
 
 
-    /**
-     * Verifica si se ha formado un cuadrado después de dibujar una línea.
-     *
-     * @param nuevaLinea La nueva línea dibujada por un jugador.
-     */
+/**
+ * Verifica si se ha formado un cuadrado después de dibujar una línea.
+ *
+ * @param nuevaLinea La nueva línea dibujada por un jugador.
+ */
     private void verificarCuadrado(Linea nuevaLinea) {
         List<Linea> adyacentes = obtenerAdyacentes(nuevaLinea);
         for (Linea linea1 : adyacentes) {
@@ -338,12 +338,12 @@ class PanelDePuntos extends JPanel{
 
 
 
-    /**
-     * Obtiene las líneas adyacentes a una línea dada.
-     *
-     * @param linea La línea para la cual se buscan líneas adyacentes.
-     * @return Una lista de líneas adyacentes.
-     */
+/**
+ * Obtiene las líneas adyacentes a una línea dada.
+ *
+ * @param linea La línea para la cual se buscan líneas adyacentes.
+ * @return Una lista de líneas adyacentes.
+ */
     private List<Linea> obtenerAdyacentes(Linea linea) {
         List<Linea> adyacentes = new ArrayList<>();
         for(Linea l : lineasDibujadas) {
@@ -354,15 +354,15 @@ class PanelDePuntos extends JPanel{
         return adyacentes;
     }
 
-    /**
-     * Verifica si cuatro líneas forman un cuadrado.
-     *
-     * @param l1 Primera línea.
-     * @param l2 Segunda línea.
-     * @param l3 Tercera línea.
-     * @param l4 Cuarta línea.
-     * @return true si las líneas forman un cuadrado; de lo contrario, false.
-     */
+/**
+ * Verifica si cuatro líneas forman un cuadrado.
+ *
+ * @param l1 Primera línea.
+ * @param l2 Segunda línea.
+ * @param l3 Tercera línea.
+ * @param l4 Cuarta línea.
+ * @return true si las líneas forman un cuadrado; de lo contrario, false.
+ */
     private boolean formaCuadrado(Linea l1, Linea l2, Linea l3, Linea l4) {
         ListaEnlazada<Punto> puntos = new ListaEnlazada<>();
         agregarSiNoExiste(puntos, l1.getPunto1());
@@ -376,12 +376,12 @@ class PanelDePuntos extends JPanel{
         return puntos.getAll().size() == 4;
     }
 
-    /**
-     * Agrega un punto a una lista si no existe ya en ella.
-     *
-     * @param lista La lista en la que se desea agregar el punto.
-     * @param punto El punto que se va a agregar.
-     */
+/**
+ * Agrega un punto a una lista si no existe ya en ella.
+ *
+ * @param lista La lista en la que se desea agregar el punto.
+ * @param punto El punto que se va a agregar.
+ */
     private void agregarSiNoExiste(ListaEnlazada<Punto> lista, Punto punto) {
         for (Punto p : lista.getAll()) {
             if (p.getX() == punto.getX() && p.getY() == punto.getY()) {
@@ -392,14 +392,14 @@ class PanelDePuntos extends JPanel{
     }
 
 
-    /**
-     * Constructor de la clase PanelDePuntos.
-     *
-     * @param filas     Número de filas de puntos en el panel.
-     * @param columnas  Número de columnas de puntos en el panel.
-     * @param labelturno JLabel que muestra el estado del turno.
-     * @param jugador   El nombre del jugador que usa este panel.
-     */
+/**
+ * Constructor de la clase PanelDePuntos.
+ *
+ * @param filas     Número de filas de puntos en el panel.
+ * @param columnas  Número de columnas de puntos en el panel.
+ * @param labelturno JLabel que muestra el estado del turno.
+ * @param jugador   El nombre del jugador que usa este panel.
+ */
     public PanelDePuntos(int filas, int columnas, JLabel labelturno, String jugador){
 
         this.labelTurno = labelturno;
@@ -450,13 +450,13 @@ class PanelDePuntos extends JPanel{
         });
     }
 
-    /**
-     * Verifica si una línea es válida antes de agregarla.
-     *
-     * @param p1 Punto inicial de la línea.
-     * @param p2 Punto final de la línea.
-     * @return true si la línea es válida; de lo contrario, false.
-     */    
+/**
+ * Verifica si una línea es válida antes de agregarla.
+ *
+ * @param p1 Punto inicial de la línea.
+ * @param p2 Punto final de la línea.
+ * @return true si la línea es válida; de lo contrario, false.
+ */    
     private boolean esLineaValida(Punto p1, Punto p2) {
         for (Linea linea : lineasDibujadas) {
             if (linea.equals(new Linea(p1, p2))) {
@@ -466,24 +466,24 @@ class PanelDePuntos extends JPanel{
         return (p1.getX() == p2.getX() || p1.getY() == p2.getY()) && calcularDistancia(p1, p2) == 100;
     }
 
-    /**
-     * Calcula la distancia entre dos puntos utilizando el teorema de Pitágoras.
-     *
-     * @param p1 Primer punto.
-     * @param p2 Segundo punto.
-     * @return La distancia entre los dos puntos.
-     */
+/**
+ * Calcula la distancia entre dos puntos utilizando el teorema de Pitágoras.
+ *
+ * @param p1 Primer punto.
+ * @param p2 Segundo punto.
+ * @return La distancia entre los dos puntos.
+ */
     private double calcularDistancia(Punto p1, Punto p2){
         return Math.sqrt(Math.pow(p2.getX() - p1.getX(), 2) + Math.pow(p2.getY() - p1.getY(), 2));
     }
 
-    /**
-     * Obtiene el punto más cercano a las coordenadas especificadas.
-     *
-     * @param x Coordenada x del punto de referencia.
-     * @param y Coordenada y del punto de referencia.
-     * @return El punto más cercano a las coordenadas especificadas.
-     */
+/**
+ * Obtiene el punto más cercano a las coordenadas especificadas.
+ *
+ * @param x Coordenada x del punto de referencia.
+ * @param y Coordenada y del punto de referencia.
+ * @return El punto más cercano a las coordenadas especificadas.
+ */
     private Punto getPuntoCercano(int x,int y){
         Punto puntoCercano = null;
         double distanciaMinima = Double.MAX_VALUE;
@@ -499,11 +499,11 @@ class PanelDePuntos extends JPanel{
             return puntoCercano;
         }
 
-    /**
-     * Sobrescribe el método paintComponent para dibujar puntos, líneas y cuadrados en el panel.
-     *
-     * @param g El contexto de gráficos en el que se realiza el dibujo.
-     */
+/**
+ * Sobrescribe el método paintComponent para dibujar puntos, líneas y cuadrados en el panel.
+ *
+ * @param g El contexto de gráficos en el que se realiza el dibujo.
+ */
     protected void paintComponent(Graphics g){
     super.paintComponent(g);
 
@@ -545,12 +545,12 @@ class PanelDePuntos extends JPanel{
 
     }
 
-    /**
-     * Envia las coordenadas de una línea al servidor.
-     *
-     * @param p1 Punto inicial de la línea.
-     * @param p2 Punto final de la línea.
-     */
+/**
+ * Envia las coordenadas de una línea al servidor.
+ *
+ * @param p1 Punto inicial de la línea.
+ * @param p2 Punto final de la línea.
+ */
     private void enviarCoordenadasServidor(Punto p1, Punto p2) {
         try {
             JSONObject jsonObj = new JSONObject();
@@ -573,17 +573,17 @@ class PanelDePuntos extends JPanel{
         actualizarLabelTurno();
     }
 
-    /**
-     * Asigna el turno al cliente y actualiza la etiqueta de estado del turno.
-     */
+/**
+ * Asigna el turno al cliente y actualiza la etiqueta de estado del turno.
+ */
     public void asignarTurno() {
         esMiTurno = true; // Asignar el turno al cliente
         actualizarLabelTurno();
     }
 
-    /**
-     * Actualiza la etiqueta de estado del turno en la interfaz de usuario.
-     */
+/**
+ * Actualiza la etiqueta de estado del turno en la interfaz de usuario.
+ */
     public void actualizarLabelTurno() {
         SwingUtilities.invokeLater(() -> {
             if (esMiTurno) {
@@ -596,14 +596,14 @@ class PanelDePuntos extends JPanel{
         });
     }
 
-    /**
-     * Conecta dos puntos al recibir una solicitud del servidor y verifica si se forma un cuadrado.
-     *
-     * @param x1 Coordenada x del primer punto.
-     * @param y1 Coordenada y del primer punto.
-     * @param x2 Coordenada x del segundo punto.
-     * @param y2 Coordenada y del segundo punto.
-     */
+/**
+ * Conecta dos puntos al recibir una solicitud del servidor y verifica si se forma un cuadrado.
+ *
+ * @param x1 Coordenada x del primer punto.
+ * @param y1 Coordenada y del primer punto.
+ * @param x2 Coordenada x del segundo punto.
+ * @param y2 Coordenada y del segundo punto.
+ */
     public void conectarPuntos(int x1, int y1, int x2, int y2) {
         Punto punto1 = getPuntoCercano(x1, y1);
         Punto punto2 = getPuntoCercano(x2, y2);
@@ -631,42 +631,42 @@ class PanelDePuntos extends JPanel{
     private int x;
     private int y;
 
-    /**
-     * Constructor para la clase Punto.
-     *
-     * @param x La coordenada x del punto.
-     * @param y La coordenada y del punto.
-     */
+/**
+ * Constructor para la clase Punto.
+ *
+ * @param x La coordenada x del punto.
+ * @param y La coordenada y del punto.
+ */
     public Punto(int x, int y,int fila, int columna) {
         this.x = x;
         this.y = y;
     }
 
-    /**
-     * Obtiene la coordenada x del punto.
-     *
-     * @return La coordenada x del punto.
-     */
+/**
+ * Obtiene la coordenada x del punto.
+ *
+ * @return La coordenada x del punto.
+ */
     public int getX() {
         return x;
     }
 
 
-    /**
-     * Establece la coordenada x del punto.
-     *
-     * @param x La nueva coordenada x del punto.
-     */
+/**
+ * Establece la coordenada x del punto.
+ *
+ * @param x La nueva coordenada x del punto.
+ */
     public void setX(int x) {
         this.x = x;
     }
 
-    /**
-     * Compara este punto con otro objeto para verificar si son iguales.
-     *
-     * @param obj El objeto con el que se compara este punto.
-     * @return true si los puntos son iguales; de lo contrario, false.
-     */
+/**
+ * Compara este punto con otro objeto para verificar si son iguales.
+ *
+ * @param obj El objeto con el que se compara este punto.
+ * @return true si los puntos son iguales; de lo contrario, false.
+ */
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
@@ -674,30 +674,30 @@ class PanelDePuntos extends JPanel{
         return x == punto.x && y == punto.y;
     }
 
-    /**
-     * Obtiene la coordenada y del punto.
-     *
-     * @return La coordenada y del punto.
-     */
+/**
+ * Obtiene la coordenada y del punto.
+ *
+ * @return La coordenada y del punto.
+ */
     public int getY() {
         return y;
     }
 
-    /**
-     * Establece la coordenada y del punto.
-     *
-     * @param y La nueva coordenada y del punto.
-     */
+/**
+ * Establece la coordenada y del punto.
+ *
+ * @param y La nueva coordenada y del punto.
+ */
     public void setY(int y) {
         this.y = y;
     }
 
 
-    /**
-     * Representación de cadena del punto en el formato "(x, y)".
-     *
-     * @return Una cadena que representa el punto.
-     */    
+/**
+ * Representación de cadena del punto en el formato "(x, y)".
+ *
+ * @return Una cadena que representa el punto.
+ */    
     @Override
     public String toString() {
         return "(" + x + ", " + y + ")";
@@ -712,52 +712,52 @@ class Linea {
     private Punto punto1;
     private Punto punto2;
 
-    /**
-     * Constructor para la clase Linea.
-     *
-     * @param punto1 El primer punto de la línea.
-     * @param punto2 El segundo punto de la línea.
-     */
+/**
+ * Constructor para la clase Linea.
+ *
+ * @param punto1 El primer punto de la línea.
+ * @param punto2 El segundo punto de la línea.
+ */
     public Linea(Punto punto1, Punto punto2) {
         this.punto1 = punto1;
         this.punto2 = punto2;
     }
 
-    /**
-     * Obtiene el primer punto de la línea.
-     *
-     * @return El primer punto de la línea.
-     */    
+/**
+ * Obtiene el primer punto de la línea.
+ *
+ * @return El primer punto de la línea.
+ */    
     public Punto getPunto1() {
         return punto1;
     }
 
-    /**
-     * Obtiene el segundo punto de la línea.
-     *
-     * @return El segundo punto de la línea.
-     */    
+/**
+ * Obtiene el segundo punto de la línea.
+ *
+ * @return El segundo punto de la línea.
+ */    
     public Punto getPunto2() {
         return punto2;
     }
 
-    /**
-     * Verifica si esta línea es adyacente a otra línea.
-     *
-     * @param otra La otra línea con la que se verifica la adyacencia.
-     * @return true si las líneas son adyacentes; de lo contrario, false.
-     */    
+/**
+ * Verifica si esta línea es adyacente a otra línea.
+ *
+ * @param otra La otra línea con la que se verifica la adyacencia.
+ * @return true si las líneas son adyacentes; de lo contrario, false.
+ */    
     public boolean esAdyacente(Linea otra) {
         return this.punto1.equals(otra.punto1) || this.punto1.equals(otra.punto2) ||
                this.punto2.equals(otra.punto1) || this.punto2.equals(otra.punto2);
     }
 
-    /**
-     * Verifica si esta línea es perpendicular a otra línea.
-     *
-     * @param otra La otra línea con la que se verifica la perpendicularidad.
-     * @return true si las líneas son perpendiculares; de lo contrario, false.
-     */
+/**
+ * Verifica si esta línea es perpendicular a otra línea.
+ *
+ * @param otra La otra línea con la que se verifica la perpendicularidad.
+ * @return true si las líneas son perpendiculares; de lo contrario, false.
+ */
     public boolean esPerpendicular(Linea otra) {
         if (this.punto1.getX() == this.punto2.getX()) { // Si esta línea es vertical
             return otra.punto1.getY() == otra.punto2.getY(); // La otra debe ser horizontal
@@ -767,12 +767,12 @@ class Linea {
         return false;
     }
 
-    /**
-     * Compara esta línea con otro objeto para verificar si son iguales.
-     *
-     * @param obj El objeto con el que se compara esta línea.
-     * @return true si las líneas son iguales; de lo contrario, false.
-     */    
+/**
+ * Compara esta línea con otro objeto para verificar si son iguales.
+ *
+ * @param obj El objeto con el que se compara esta línea.
+ * @return true si las líneas son iguales; de lo contrario, false.
+ */    
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
@@ -790,11 +790,11 @@ class ClienteThread extends Thread {
     private Socket socket;
     private PanelDePuntos panel;
 
-    /**
-     * Constructor para la clase ClienteThread.
-     *
-     * @param panel El panel de puntos al que se vincula este hilo de cliente.
-     */
+/**
+ * Constructor para la clase ClienteThread.
+ *
+ * @param panel El panel de puntos al que se vincula este hilo de cliente.
+ */
     public ClienteThread(PanelDePuntos panel) {
         this.panel = panel;
         try {
@@ -805,9 +805,9 @@ class ClienteThread extends Thread {
     }
 
 
-    /**
-     * El método run() del hilo. Escucha continuamente los mensajes del servidor y los procesa.
-     */    
+/**
+ * El método run() del hilo. Escucha continuamente los mensajes del servidor y los procesa.
+ */    
     public void run() {
         try {
             DataInputStream in = new DataInputStream(socket.getInputStream());
@@ -821,11 +821,11 @@ class ClienteThread extends Thread {
             e.printStackTrace();
         }
     }
-    /**
-     * Procesa un mensaje recibido del servidor y realiza acciones en función del contenido del mensaje.
-     *
-     * @param mensaje El mensaje recibido del servidor.
-     */    
+/**
+ * Procesa un mensaje recibido del servidor y realiza acciones en función del contenido del mensaje.
+ *
+ * @param mensaje El mensaje recibido del servidor.
+ */    
     private void procesarMensaje(String mensaje) {
         if ("TU TURNO".equals(mensaje)) {
             panel.asignarTurno();
@@ -862,11 +862,11 @@ class Nodo<T> {
     T data;
     Nodo<T> next;
 
-    /**
-     * Constructor para la clase Nodo. Crea un nuevo nodo con el dato especificado y sin referencia al siguiente nodo.
-     *
-     * @param data El dato que se almacenará en el nodo.
-     */    
+/**
+ * Constructor para la clase Nodo. Crea un nuevo nodo con el dato especificado y sin referencia al siguiente nodo.
+ *
+ * @param data El dato que se almacenará en el nodo.
+ */    
     public Nodo(T data) {
         this.data = data;
         this.next = null;
@@ -883,18 +883,18 @@ class Nodo<T> {
 class ListaEnlazada<T> {
     private Nodo<T> head;
 
-    /**
-     * Constructor para la clase ListaEnlazada. Inicializa una lista enlazada vacía con la cabeza (head) nula.
-     */    
+/**
+ * Constructor para la clase ListaEnlazada. Inicializa una lista enlazada vacía con la cabeza (head) nula.
+ */    
     public ListaEnlazada() {
         this.head = null;
     }
 
-    /**
-     * Agrega un nuevo nodo con el dato especificado al final de la lista.
-     *
-     * @param data El dato que se agregará a la lista.
-     */
+/**
+ * Agrega un nuevo nodo con el dato especificado al final de la lista.
+ *
+ * @param data El dato que se agregará a la lista.
+ */
     public void add(T data) {
         Nodo<T> newNode = new Nodo<>(data);
         if (head == null) {
@@ -909,11 +909,11 @@ class ListaEnlazada<T> {
         current.next = newNode;
     }
 
-    /**
-     * Elimina el nodo que contiene el dato especificado de la lista, si existe.
-     *
-     * @param data El dato que se desea eliminar de la lista.
-     */
+/**
+ * Elimina el nodo que contiene el dato especificado de la lista, si existe.
+ *
+ * @param data El dato que se desea eliminar de la lista.
+ */
     public void remove(T data) {
         if (head == null) return;
 
@@ -932,12 +932,12 @@ class ListaEnlazada<T> {
         }
     }
 
-    /**
-     * Busca un nodo que contenga el dato especificado en la lista y devuelve dicho nodo.
-     *
-     * @param data El dato que se desea buscar en la lista.
-     * @return El nodo que contiene el dato especificado, o null si no se encuentra.
-     */
+/**
+ * Busca un nodo que contenga el dato especificado en la lista y devuelve dicho nodo.
+ *
+ * @param data El dato que se desea buscar en la lista.
+ * @return El nodo que contiene el dato especificado, o null si no se encuentra.
+ */
     public Nodo<T> search(T data) {
         Nodo<T> current = head;
         while (current != null) {
@@ -949,11 +949,11 @@ class ListaEnlazada<T> {
         return null;
     }
 
-    /**
-     * Obtiene todos los datos de la lista como una lista de tipo List<T> para facilitar su manejo.
-     *
-     * @return Una lista que contiene todos los datos de la lista en el orden en que aparecen.
-     */
+/**
+ * Obtiene todos los datos de la lista como una lista de tipo List<T> para facilitar su manejo.
+ *
+ * @return Una lista que contiene todos los datos de la lista en el orden en que aparecen.
+ */
     public List<T> getAll() {
         List<T> list = new ArrayList<>();
         Nodo<T> current = head;
