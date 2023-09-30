@@ -253,7 +253,7 @@ class Ventanagame extends JFrame{
         add(labelJugador);
         
 
-        PanelDePuntos panelDePuntos = new PanelDePuntos(8, 18);
+        PanelDePuntos panelDePuntos = new PanelDePuntos(8,8);
         panelDePuntos.setBounds(130, 100, 720, 720);
         panelDePuntos.setBackground(Color.white);
         ClienteThread clienteThread = new ClienteThread(panelDePuntos);
@@ -280,6 +280,10 @@ class PanelDePuntos extends JPanel{
     private List<Linea> lineasDibujadas = new ArrayList<>();
     private ListaEnlazada<List<Punto>> cuadradosCompletados = new ListaEnlazada<>();
 
+    private int cuadradosCompletadosCount = 0;
+    private int totalCuadrados = 0;
+
+
     private void verificarCuadrado(Linea nuevaLinea) {
         List<Linea> adyacentes = obtenerAdyacentes(nuevaLinea);
         for (Linea linea1 : adyacentes) {
@@ -303,6 +307,15 @@ class PanelDePuntos extends JPanel{
                         agregarSiNoExiste(cuadrado, linea3.getPunto2());
                         if (cuadrado.getAll().size() == 4) {
                             cuadradosCompletados.add(cuadrado.getAll());
+                            cuadradosCompletadosCount++;
+
+                            if (cuadradosCompletadosCount == totalCuadrados) {
+                                // Aquí puedes mostrar un mensaje de finalización del juego
+                                JOptionPane.showMessageDialog(this, "¡Juego completado!");
+                                // Detener cualquier interacción adicional con puntos y líneas
+                                setEnabled(false);
+                            }
+
                             return;
                         }
                     }
@@ -346,7 +359,8 @@ class PanelDePuntos extends JPanel{
     }
 
     public PanelDePuntos(int filas, int columnas){
-
+        
+        this.totalCuadrados = (filas - 1) * (columnas - 1);
 
         for (int i = 0; i<filas;i++){
             for (int j = 0; j<columnas; j++){
@@ -354,6 +368,7 @@ class PanelDePuntos extends JPanel{
                 puntosTotales.add(punto);
             }
         }
+
 
         addMouseListener(new MouseAdapter(){
             public void mouseClicked(MouseEvent e){
