@@ -17,6 +17,8 @@ import java.net.Socket;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.DataInputStream;
+import java.util.Map;
+import java.util.HashMap;
 
 public class Interfaz {
 
@@ -239,6 +241,7 @@ class Ventanagame extends JFrame {
     private JLabel labelJugador;
     private int jugadorScore = 0;
     private JLabel labelPuntuacion;
+    private Map<String, Integer> puntajes = new HashMap<>();
 
     public Ventanagame(String jugador) {
 

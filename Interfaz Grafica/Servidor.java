@@ -1,126 +1,107 @@
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.io.*;
+import java.net.*;
 import java.util.ArrayList;
-import java.io.DataOutputStream;
+import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.*;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Servidor {
+    private JFrame ventana;
     private JTextArea areadetexto;
+    private ServerSocket serverSocket;
+    private int clientIDCounter = 0;
+
+    private List<ClientHandler> activeClients = new LinkedList<>(); // Lista enlazada para manejar a los ClientHandler conectados
 
     public Servidor() {
-        JFrame canal = new JFrame();
-        canal.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); // Cambiamos la operación de cierre por defecto
-        canal.setSize(600, 600);
-        canal.setLayout(null);
+        ventana = new JFrame("Servidor");
 
-        JPanel laminaserver = new JPanel();
-        laminaserver.setLayout(null);
-        laminaserver.setSize(600, 600);
-        laminaserver.setBackground(Color.white);
-        laminaserver.setVisible(true);
+        areadetexto = new JTextArea();
+        ventana.add(areadetexto);
 
-        canal.add(laminaserver);
+        ventana.setSize(500, 500);
+        ventana.setVisible(true);
 
-        areadetexto = new JTextArea(null, null, 20, 20);
-        areadetexto.setBounds(100, 100, 400, 400);
-        areadetexto.setEditable(false);
-        laminaserver.add(areadetexto);
+        try {
+            serverSocket = new ServerSocket(9991);
 
-        // Agregar confirmación al cerrar la ventana
-        canal.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                int option = JOptionPane.showConfirmDialog(null, "¿Seguro que deseas salir?", "Salir", JOptionPane.YES_NO_OPTION);
-                if (option == JOptionPane.YES_OPTION) {
-                    System.exit(0);
-                }
+            while (true) {
+                Socket socket = serverSocket.accept();
+                int clientID = getNextClientID();
+                ClientHandler clientHandler = new ClientHandler(socket, this, clientID);
+                activeClients.add(clientHandler); // Añade el nuevo ClientHandler a la lista
+                clientHandler.start();
             }
-        });
-
-        canal.setVisible(true);
-    }
-
-    public void appendMessage(String message) {
-        areadetexto.append(message + "\n");
-    }
-
-    public static void main(String args[]) {
-        SwingUtilities.invokeLater(() -> {
-            Servidor servidor = new Servidor();
-            new Thread(() -> {
-                try {
-                    ServerSocket socketserv = new ServerSocket(9991);
-                    while (true) {
-                        Socket socket = socketserv.accept();
-                        ClientHandler handler = new ClientHandler(socket, servidor);
-                        servidor.addClientHandler(handler);
-                        handler.start();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }).start();
-        });
-    }
-    
-    private List<ClientHandler> clientHandlers = new ArrayList<>();
-
-    public synchronized void addClientHandler(ClientHandler handler) {
-        clientHandlers.add(handler);
-    }
-
-    public synchronized void removeClientHandler(ClientHandler handler) {
-        clientHandlers.remove(handler);
-    }
-
-    public synchronized void sendToAll(String message) {
-        for(ClientHandler handler : clientHandlers) {
-            handler.sendMessage(message);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
+    public synchronized int getNextClientID() { // Método sincronizado para obtener el siguiente ID de cliente
+        return clientIDCounter++;
+    }
 
+    public void appendMessage(String msg) {
+        areadetexto.append(msg + "\n");
+    }
+    public void sendToAll(String msg) {
+        for (ClientHandler client : activeClients) {
+            client.sendMessage(msg);
+        }
+    }
+
+    public void removeClientHandler(ClientHandler clientHandler) {
+        activeClients.remove(clientHandler); // Elimina el ClientHandler de la lista
+    }
+
+    public static void main(String[] args) {
+        new Servidor();
+    }
 }
 
 class ClientHandler extends Thread {
     private Socket socket;
     private Servidor servidor;
-    private DataOutputStream out;
-    
-    public ClientHandler(Socket socket, Servidor servidor) {
+    private DataInputStream in;
+    private int clientID; // Nuevo atributo para almacenar el ID del cliente
+
+    public ClientHandler(Socket socket, Servidor servidor, int clientID) {
         this.socket = socket;
         this.servidor = servidor;
+        this.clientID = clientID; // Establecer el ID del cliente
         try {
-            this.out = new DataOutputStream(socket.getOutputStream());
+            in = new DataInputStream(socket.getInputStream());
         } catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public void sendMessage(String msg) {
+        try {
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            out.writeUTF(msg);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void sendMessage(String message) {
-        try {
-            out.writeUTF(message);
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     public void run() {
         try {
-            DataInputStream in = new DataInputStream(socket.getInputStream());
-            String coordenadas;
             while (true) {
-                coordenadas = in.readUTF();  // Recibes el mensaje del cliente
-                servidor.appendMessage(coordenadas);  // Agrega el mensaje a tu área de texto en el servidor
-                servidor.sendToAll(coordenadas);     // Envía a todos los clientes
+                String mensaje = in.readUTF();
+                JSONObject jsonObj = new JSONObject(mensaje);
+                if (jsonObj.has("completedSquare") && jsonObj.getBoolean("completedSquare")) { 
+                    // Si el mensaje indica que se ha completado un cuadrado, solo lo enviamos a ese cliente específico
+                    sendToClient(jsonObj.toString());
+                } else {
+                    servidor.appendMessage(mensaje);
+                    servidor.sendToAll(mensaje);
+                }
             }
-        } catch (IOException e) {
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
         } finally {
             try {
@@ -130,6 +111,20 @@ class ClientHandler extends Thread {
             }
             servidor.removeClientHandler(this);
         }
+    }
+
+    private void sendToClient(String message) {
+        // Envía un mensaje solo a este cliente en particular
+        try {
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            out.writeUTF(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int getClientID() {
+        return clientID;
     }
 }
 
