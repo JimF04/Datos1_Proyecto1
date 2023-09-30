@@ -204,8 +204,10 @@ class Ventanagame extends JFrame{
 
     private JLabel labelJugador;
     private JLabel labelTurno;
+    private String nombreJugador;
 
     public Ventanagame(String jugador){
+        this.nombreJugador = jugador;
 
         setLayout(null);
         setSize(1000,1000);
@@ -226,7 +228,7 @@ class Ventanagame extends JFrame{
         add(labelTurno);
         
 
-        PanelDePuntos panelDePuntos = new PanelDePuntos(4, 4,labelTurno);
+        PanelDePuntos panelDePuntos = new PanelDePuntos(8, 8,labelTurno, nombreJugador);
         panelDePuntos.setBounds(130, 100, 720, 720);
         panelDePuntos.setBackground(Color.white);
         ClienteThread clienteThread = new ClienteThread(panelDePuntos);
@@ -251,8 +253,12 @@ class PanelDePuntos extends JPanel{
     private JLabel labelTurno;
     private ClienteThread clienteThread;
 
+    private String nombreJugador;
+
     private int totalCuadrados;
     private int cuadradosCompletadosCount;
+
+
 
     private void verificarCuadrado(Linea nuevaLinea) {
         List<Linea> adyacentes = obtenerAdyacentes(nuevaLinea);
@@ -261,7 +267,7 @@ class PanelDePuntos extends JPanel{
                 for (Linea linea3 : obtenerAdyacentes(linea2)) {
                     // Verificar que las líneas son distintas
                     if (linea1.equals(nuevaLinea) || linea2.equals(nuevaLinea) || linea3.equals(nuevaLinea)
-                        || linea1.equals(linea2) || linea1.equals(linea3) || linea2.equals(linea3)) {
+                            || linea1.equals(linea2) || linea1.equals(linea3) || linea2.equals(linea3)) {
                         continue;
                     }
                     // Verificar que las líneas forman un cuadrado
@@ -281,17 +287,14 @@ class PanelDePuntos extends JPanel{
                             if (cuadradosCompletadosCount == totalCuadrados) {
                                 // Aquí puedes mostrar un mensaje de finalización del juego
                                 JOptionPane.showMessageDialog(this, "¡Juego completado!");
-                                // Detener cualquier interacción adicional con puntos y líneas
-                                setEnabled(false);
                             }
-                            return;
                         }
                     }
                 }
             }
         }
-        
     }
+
 
 
 
@@ -327,9 +330,10 @@ class PanelDePuntos extends JPanel{
         lista.add(punto);
     }
 
-    public PanelDePuntos(int filas, int columnas, JLabel labelturno){
+    public PanelDePuntos(int filas, int columnas, JLabel labelturno, String jugador){
 
         this.labelTurno = labelturno;
+        this.nombreJugador = jugador;
 
         totalCuadrados = (filas - 1) * (columnas - 1);
         cuadradosCompletadosCount = 0;
@@ -452,6 +456,7 @@ class PanelDePuntos extends JPanel{
             jsonObj.put("y1", p1.getY());
             jsonObj.put("x2", p2.getX());
             jsonObj.put("y2", p2.getY());
+            jsonObj.put("jugador", nombreJugador);
 
             Socket socketclient = new Socket("localhost", 9991);
             DataOutputStream dos = new DataOutputStream(socketclient.getOutputStream());
